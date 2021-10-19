@@ -4,8 +4,9 @@ from django.test import TestCase
 import unittest
 from django.shortcuts import render
 
-#Tests if the pages exist
+# Tests if the pages exist
 class URLTests(unittest.TestCase):
+    # Can the login page be loaded?
     def testGetLoginPage(self):
         request = 'index'
         self.assertTrue(render(request, 'loginPage/index.html', context={}))
