@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class VotingpageConfig(AppConfig):
+class PollsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'votingPage'
+    name = 'polls'
