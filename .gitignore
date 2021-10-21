@@ -135,3 +135,8 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# IDE stuff
+.idea/
+pythonProject/.idea
+Include/Scripts
