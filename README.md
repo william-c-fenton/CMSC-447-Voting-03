@@ -24,3 +24,5 @@ _python manage.py test loginPage_
 
 At the moment, there are no features provided on the
 webpage.
+
+At the moment, these are rather unorganized Django apps, and in the future they will be more coherent. 
