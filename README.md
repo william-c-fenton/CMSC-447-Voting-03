@@ -16,9 +16,35 @@ Click the link provided to be taken to the webpage:
 
 _python manage.py runserver_
 
+Do the following to create a question and view it:
+1. Create an admin user with the following command:
+_python manage.py createsuperuser_
+
+2. Go to https://localhost:8000/admin/ and login as the admin you just created.
+
+3. Click on the Questions page in Django admin under Polls and add a Question and then save it
+
+4. Next open up the Django shell with the command: _python manage.py shell_
+
+5. Enter the following in the shell 
+>>> from polls.models import Choice, Question
+>>> q = Question.objects.get(pk=1)
+>>> q.choice_set.create(choice_text='Yes', votes=0)
+>>> q.choice_set.create(choice_text='No', votes=0)
+>>> exit()
+
+6. The poll should now show up under the page https://localhost:8000/polls/
+
+7. Click on the question and vote on it.
+
+
 Use the following command to run the test for the login page:
 
 _python manage.py test loginPage_
+
+Use the following command to run the tests for the polls voting page:
+
+_python manage.py test polls_
 
 #Using the program:
 
