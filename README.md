@@ -6,6 +6,9 @@ Secure voting project for CMSC 447 with Ben Johnson.
 Please be sure to have the software installed as outlined
 in requirements.txt, especially Python 3 and Django ver. 3.2.8!
 
+To use the selenium tests, please use a Chrome webdriver, and keep
+it in the C:\ drive.
+
 The webpage was developed and run in PyCharm 2021.2.2 Professional
 Edition. Execution instructions are as follows:
 
@@ -37,8 +40,11 @@ _python manage.py createsuperuser_
 
 7. Click on the question and vote on it.
 
-
+To run tests, please have two terminals open, one that runs the
+webpage, and one that runs the tests using selenium.
 Use the following command to run the test for the login page:
+
+_python manage.py runserver_
 
 _python manage.py test loginPage_
 
