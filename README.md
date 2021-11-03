@@ -3,18 +3,17 @@ Secure voting project for CMSC 447 with Ben Johnson.
 
 #Setup:
 
-Please be sure to have the software installed as outlined
-in requirements.txt, especially Python 3 and Django ver. 3.2.8!
+This program REQUIRES python 3.9.7 (as opposed to 3.10.0, not sure if it works on other versions/patches).
 
-To use the selenium tests, please use a Chrome webdriver, and keep
-it in the C:\ drive.
+Please be sure to have the software installed as outlined in requirements.txt. If you're using the correct version of Python, everything should install smoothly.
 
-The webpage was developed and run in PyCharm 2021.2.2 Professional
-Edition. Execution instructions are as follows:
+To use the selenium tests, please use a Chrome webdriver, and keep it in the C:\ drive.
+
+The webpage was developed and run in PyCharm 2021.2.2 Professional Edition. Execution instructions are as follows:
 
 #Execution of program:
 
-Use the following command to run the webpage.
+Use the following commands to run the webpage.
 Click the link provided to be taken to the webpage:
 
 _python manage.py runserver_
