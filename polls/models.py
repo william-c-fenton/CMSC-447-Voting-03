@@ -26,6 +26,8 @@ class Choice(models.Model):
         return self.choice_text
 
 
+# Vote model gets stored in list of votes for each choice. Each vote is associated
+# with a user so that a user can not vote twice in a ballot.
 class Vote(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     voter = models.ForeignKey(VoterInfo, on_delete=models.CASCADE)
