@@ -34,8 +34,8 @@ def loginSuccess(request):
 def checkInput(request):
     # -This code was run to add a user into the database-
     # VoterInfo.objects.filter(IDNum='12345').delete()
-    # info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
-    # info.save()
+    info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
+    info.save()
     voterinfo = VoterInfo.objects.filter()
 
     for info in voterinfo:

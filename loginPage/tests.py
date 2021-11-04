@@ -10,6 +10,7 @@ import os
 from selenium.webdriver.common.keys import Keys
 
 from django.test import Client
+from django.urls import reverse
 
 # Tests if the pages exist and can be modified
 class URLTests(unittest.TestCase):
@@ -31,7 +32,9 @@ class URLTests(unittest.TestCase):
     def findFields(self):
         # Login normally
         driver = self.driver
-        self.assertTrue(driver.get("http://127.0.0.1:8000/login"))
+        driver.get('http://127.0.0.1:8000/')
+        # Does index.html take the user to the login page?
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
         self.assertTrue(driver.find_element_by_name("first name"))
         self.assertTrue(driver.find_element_by_name("last name"))
         self.assertTrue(driver.find_element_by_name("state"))
@@ -41,7 +44,8 @@ class URLTests(unittest.TestCase):
         self.assertTrue(driver.find_element_by_name("submit"))
 
         # Error page
-        self.assertTrue(driver.get("http://127.0.0.1:8000/loginError"))
+        driver.get('http://127.0.0.1:8000/loginError/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginError/')
         self.assertTrue(driver.find_element_by_name("first name"))
         self.assertTrue(driver.find_element_by_name("last name"))
         self.assertTrue(driver.find_element_by_name("state"))
@@ -49,6 +53,10 @@ class URLTests(unittest.TestCase):
         self.assertTrue(driver.find_element_by_name("email"))
         self.assertTrue(driver.find_element_by_name("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
+
+        # Success page
+        driver.get('http://127.0.0.1:8000/loginSuccess/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
 
     # Can the fields have data entered into them?
     # Can the login info take the user to the success page?
@@ -59,7 +67,8 @@ class URLTests(unittest.TestCase):
 
         # Login normally
         driver = self.driver
-        driver.get("http://127.0.0.1:8000/login")
+        driver.get('http://127.0.0.1:8000/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
         first = driver.find_element_by_name("first name")
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
@@ -74,14 +83,17 @@ class URLTests(unittest.TestCase):
         submit = driver.find_element_by_name("submit")
         submit.click()
 
+        # Was login successful?
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
 
         # Go back to login page, then test if the incorrect input takes user to error page.
-        driver.get("http://127.0.0.1:8000/login")
+        driver.get('http://127.0.0.1:8000/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
 
         submit = driver.find_element_by_name("submit")
         submit.click()
 
+        # Did login fail?
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginError/')
 
         # Do login steps again
@@ -99,6 +111,7 @@ class URLTests(unittest.TestCase):
         submit = driver.find_element_by_name("submit")
         submit.click()
 
+        # Was login successful?
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
 
         # Delete test voter information
