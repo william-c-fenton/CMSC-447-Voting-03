@@ -1,11 +1,14 @@
-import datetime
-
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.utils import timezone
-from django.urls import reverse
+from django.urls import reverse, path
 
-from .models import Question
+from .models import Question, Choice, Vote
+from loginPage.models import VoterInfo
 
+from selenium import webdriver
+import os
+from selenium.webdriver.common.keys import Keys
+import datetime
 
 class QuestionModelTests(TestCase):
 
@@ -123,3 +126,48 @@ class QuestionDetailViewTests(TestCase):
         url = reverse('polls:detail', args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
+
+class ResultsViewTests(TestCase):
+    @classmethod
+    def setUpClass(self):
+        self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
+
+        self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
+
+        self.question.choice_set.create(choice_text='Yes')
+        self.question.choice_set.create(choice_text='No')
+
+    @classmethod
+    def tearDownClass(self):
+        self.driver.close()
+
+    def test_vote_takes_user_to_results_page(self):
+        # Verify that the webpage takes you to the results page after clicking the vote button. 
+
+        # Navigate to the voting page for our poll. 
+        driver = self.driver
+        driver.get(f'http://127.0.0.1:8000/polls/{self.question.id}')
+
+        # Input a vote (just the first option is fine here).
+        driver.find_element_by_id('choice1').click()
+
+        # Select the "Vote" button, which should add a vote to the database and take us to the results page. 
+        driver.find_element_by_xpath(".//input[@value='Vote']").click()
+
+        # Verify that we are now currently on the results page.
+        self.assertEqual(driver.current_url, 
+            f'http://127.0.0.1:8000/polls/{self.question.id}/results/')
+
+
+
+
+
+
+    
+
+
+
+
+    
+
+
