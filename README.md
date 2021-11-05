@@ -51,9 +51,4 @@ or,
 
 _python manage.py test polls_
 
-#Using the program:
 
-At the moment, there are no features provided on the
-webpage.
-
-At the moment, these are rather unorganized Django apps, and in the future they will be more coherent. 
