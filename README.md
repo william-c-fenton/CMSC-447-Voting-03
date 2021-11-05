@@ -47,7 +47,7 @@ _python manage.py runserver_
 
 _python manage.py test loginPage_
 
-Use the following command to run the tests for the polls voting page (DOES NOT CURRENTLY WORK):
+or, 
 
 _python manage.py test polls_
 
