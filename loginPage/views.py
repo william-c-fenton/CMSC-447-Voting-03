@@ -36,15 +36,23 @@ def checkInput(request):
     # VoterInfo.objects.filter(IDNum='12345').delete()
     info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
     info.save()
-    voterinfo = VoterInfo.objects.filter()
 
-    for info in voterinfo:
-        if info.firstName == request.POST.get("first name"):
-            if info.lastName == request.POST.get("last name"):
-                if info.state == request.POST.get("state"):
-                    if info.IDNum == request.POST.get("IDNum"):
-                        if info.email == request.POST.get("email"):
-                            return HttpResponseRedirect(reverse('loginSuccess'))
+    voter_first_name = request.POST.get('first name')
+    voter_last_name = request.POST.get('last name')
+    voter_state = request.POST.get('state')
+    voter_idnum = request.POST.get('IDNum')
+    voter_email = request.POST.get('email')
+
+    voterinfo = VoterInfo.objects.filter(
+        firstName__iexact=voter_first_name,
+        lastName__iexact=voter_last_name,
+        state__iexact=voter_state,
+        IDNum__exact=voter_idnum,
+        email__iexact=voter_email
+    )
+
+    if voterinfo:
+        return HttpResponseRedirect(reverse('loginSuccess'))
 
     return HttpResponseRedirect(reverse('loginError'))
 
