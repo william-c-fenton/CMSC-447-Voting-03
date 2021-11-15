@@ -31,11 +31,16 @@ def loginSuccess(request):
     return render(request, 'loginPage/loginSuccess.html', context={})
 
 # Checks user input, then redirects to proper webpage.
-def checkInput(request):
+def checkLogin(request):
     # -This code was run to add a user into the database-
-    # VoterInfo.objects.filter(IDNum='12345').delete()
-    info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
-    info.save()
+    
+    # Before attempting to log into the website, you must have a user in your database.
+    # To add one, follow these instructions:
+    #   1. In terminal, type 'python manage.py shell'
+    #   2. Type p = VoterInfo(firstName='John', lastName='smith', ..., email='test@example.com')
+    #       Make sure you fill in all the fields! Check models.py for fields available. 
+    #   3. Type p.save()
+    #   Now you should have a user in your database to log in with. 
 
     voter_first_name = request.POST.get('first name')
     voter_last_name = request.POST.get('last name')

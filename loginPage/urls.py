@@ -7,7 +7,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('loginError/', views.loginError, name='loginError'),
     path('loginSuccess/', views.loginSuccess, name='loginSuccess'),
-    path('checkInput/', views.checkInput, name='checkInput'),
+    path('checkLogin/', views.checkLogin, name='checkLogin'),
 ]
 
 # An attempt was made to use parameters for path(), but was unsuccessful.

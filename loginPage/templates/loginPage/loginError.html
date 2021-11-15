@@ -10,7 +10,7 @@
         Please enter information below.</br>
 
         <!--Page will be brought up if first attempt failed.-->
-        <form action="{% url 'checkInput' %}" method="post">
+        <form action="{% url 'checkLogin' %}" method="post">
             {% csrf_token %}
             <p style="color:red;">The information provided does not match in our database. Try again.</p>
             Enter First name:

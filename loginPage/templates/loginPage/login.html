@@ -10,7 +10,7 @@
         Please enter information below.</br>
 
         <!--Basic login information to be checked against info in database -->
-        <form action="{% url 'checkInput' %}" method="post">
+        <form action="{% url 'checkLogin' %}" method="post">
             {% csrf_token %}
             Enter First name:
             <input type="text" name="first name"> </br>
