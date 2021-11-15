@@ -3,6 +3,9 @@ from django.test import TestCase
 # Create your tests here.
 import unittest
 from django.shortcuts import render
+from django.utils import timezone
+
+from polls.models import Question, Choice, Vote
 from loginPage.models import VoterInfo
 
 from selenium import webdriver
@@ -13,6 +16,9 @@ from django.test import Client
 from django.urls import reverse
 
 # Tests if the pages exist and can be modified
+from polls.models import Question
+
+
 class URLTests(unittest.TestCase):
     # -This test no longer can function due to the inclusion of the csrf_token.
     # Can the login page be loaded?
@@ -54,9 +60,10 @@ class URLTests(unittest.TestCase):
         self.assertTrue(driver.find_element_by_name("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
+        # page no longer needed
         # Success page
-        driver.get('http://127.0.0.1:8000/loginSuccess/')
-        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
+        # driver.get('http://127.0.0.1:8000/loginSuccess/')
+        # self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
 
     # Can the fields have data entered into them?
     # Can the login info take the user to the success page?
@@ -84,7 +91,8 @@ class URLTests(unittest.TestCase):
         submit.click()
 
         # Was login successful?
-        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
+        # NOTE: was edited to polls page
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
 
         # Go back to login page, then test if the incorrect input takes user to error page.
         driver.get('http://127.0.0.1:8000/')
@@ -112,7 +120,8 @@ class URLTests(unittest.TestCase):
         submit.click()
 
         # Was login successful?
-        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
+        # NOTE: was edited to polls page
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
 
         # Delete test voter information
         VoterInfo.objects.filter(IDNum='12345').delete()

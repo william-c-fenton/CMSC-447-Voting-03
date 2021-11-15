@@ -34,8 +34,8 @@ def loginSuccess(request):
 def checkInput(request):
     # -This code was run to add a user into the database-
     # VoterInfo.objects.filter(IDNum='12345').delete()
-    info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
-    info.save()
+    # info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
+    # info.save()
     voterinfo = VoterInfo.objects.filter()
 
     for info in voterinfo:
@@ -44,7 +44,7 @@ def checkInput(request):
                 if info.state == request.POST.get("state"):
                     if info.IDNum == request.POST.get("IDNum"):
                         if info.email == request.POST.get("email"):
-                            return HttpResponseRedirect(reverse('loginSuccess'))
+                            return HttpResponseRedirect('http://127.0.0.1:8000/polls/')
 
     return HttpResponseRedirect(reverse('loginError'))
 
