@@ -83,6 +83,12 @@ def checkUser(request):
     voter_idnum = request.POST.get('IDNum')
     voter_email = request.POST.get('email')
 
+    fields = [voter_first_name, voter_last_name, voter_state, voter_idnum, voter_email]
+
+    for field in fields:
+        if field == '':
+            return HttpResponseRedirect(reverse('createUserError'))
+
     voterinfo = VoterInfo.objects.filter(
         firstName__iexact=voter_first_name,
         lastName__iexact=voter_last_name,
