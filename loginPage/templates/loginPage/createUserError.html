@@ -10,7 +10,7 @@
         Please enter information below.</br>
 
         <!--Basic login information to be checked against info in database -->
-        <p style="color:red;">User already exists. Try logging in?</p>
+        <p style="color:red;" id="errorText">User already exists. Try logging in?</p>
 
         <form action="{% url 'checkUser' %}" method="post">
             {% csrf_token %}
@@ -29,7 +29,7 @@
         </form>
 
         <form action="{% url 'login' %}" method="post">{% csrf_token %}
-            <input type="submit" name="submit" value="Log In">
+            <input type="submit" name="login" value="Log In">
         </form>
     </div>
 </body>
