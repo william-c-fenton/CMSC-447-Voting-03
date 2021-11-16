@@ -20,16 +20,6 @@ from polls.models import Question
 
 
 class URLTests(unittest.TestCase):
-    # -This test no longer can function due to the inclusion of the csrf_token.
-    # Can the login page be loaded?
-    # def testGetLoginPage(self):
-    #     request = 'login'
-    #     voterinfo = VoterInfo.objects.filter()
-    #     context = {
-    #         'voterinfo': voterinfo
-    #     }
-    #     self.assertTrue(render(request, 'loginPage/login.html', context={}))
-
     # Set up a Chrome browser
     def setUp(self):
         self.driver = webdriver.Chrome(executable_path=r'C:\chromedriver.exe')
@@ -46,7 +36,7 @@ class URLTests(unittest.TestCase):
         self.assertTrue(driver.find_element_by_name("state"))
         self.assertTrue(driver.find_element_by_name("IDNum"))
         self.assertTrue(driver.find_element_by_name("email"))
-        self.assertTrue(driver.find_element_by_name("help"))
+        self.assertTrue(driver.find_element_by_id("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
         # Error page
@@ -57,16 +47,16 @@ class URLTests(unittest.TestCase):
         self.assertTrue(driver.find_element_by_name("state"))
         self.assertTrue(driver.find_element_by_name("IDNum"))
         self.assertTrue(driver.find_element_by_name("email"))
-        self.assertTrue(driver.find_element_by_name("help"))
+        self.assertTrue(driver.find_element_by_id("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
-        # page no longer needed
-        # Success page
-        # driver.get('http://127.0.0.1:8000/loginSuccess/')
-        # self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginSuccess/')
+        # Help page
+        driver.get('http://127.0.0.1:8000/loginHelp/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginHelp/')
+        self.assertTrue(driver.find_element_by_id("back"))
 
     # Can the fields have data entered into them?
-    # Can the login info take the user to the success page?
+    # Can the login info take the user to the polls page?
     def testFieldInputTrue(self):
         # Add test voter information
         info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
@@ -125,6 +115,41 @@ class URLTests(unittest.TestCase):
 
         # Delete test voter information
         VoterInfo.objects.filter(IDNum='12345').delete()
+
+    # Can the user get to the help page?
+    def testHelp(self):
+        # Go to login page
+        driver = self.driver
+        driver.get('http://127.0.0.1:8000/')
+
+        helplink = driver.find_element_by_id("help")
+        helplink.click()
+
+        # Did the link take the user to the help page?
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginHelp/')
+
+        # Go back to login page, by pressing back link.
+        back = driver.find_element_by_id("back")
+        back.click()
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
+
+        # Go to error page, and try help link there
+        submit = driver.find_element_by_name("submit")
+        submit.click()
+
+        # Did login fail?
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginError/')
+
+        helplink = driver.find_element_by_id("help")
+        helplink.click()
+
+        # Did the link take the user to the help page?
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginHelp/')
+
+        # Go back to login page, by pressing back link.
+        back = driver.find_element_by_id("back")
+        back.click()
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
 
     # Close the Chrome browser
     def tearDown(self):
