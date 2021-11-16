@@ -3,7 +3,6 @@ import datetime
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
-
 from loginPage.models import VoterInfo
 
 class Question(models.Model):
@@ -33,4 +32,3 @@ class Choice(models.Model):
 class Vote(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
     voter = models.ForeignKey(VoterInfo, on_delete=models.DO_NOTHING)
-
