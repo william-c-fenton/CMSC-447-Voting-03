@@ -27,8 +27,8 @@ def loginError(request):
     return render(request, 'loginPage/loginError.html', context=context)
 
 # Page when user successfully logs in. Temporary page to use before voting page is made.
-def loginSuccess(request):
-    return render(request, 'loginPage/loginSuccess.html', context={})
+def loginHelp(request):
+    return render(request, 'loginPage/loginHelp.html', context={})
 
 # Main create user page without error message. 
 def createUser(request):
