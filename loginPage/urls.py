@@ -1,13 +1,19 @@
 from django.urls import path
 
 from . import views
+from polls.views import IndexView
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('login/', views.login, name='login'),
     path('loginError/', views.loginError, name='loginError'),
+    path('createUser/', views.createUser, name='createUser'),
+    path('createUserError/', views.createUserError, name='createUserError'),
+    path('checkLogin/', views.checkLogin, name='checkLogin'),
+    path('checkUser/', views.checkUser, name='checkUser'),
     path('loginHelp/', views.loginHelp, name='loginHelp'),
-    path('checkInput/', views.checkInput, name='checkInput'),
+    path('checkLogin/', views.checkLogin, name='checkLogin'),
+    path('polls/', IndexView.as_view(), name='polls')
 ]
 
 # An attempt was made to use parameters for path(), but was unsuccessful.

@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from loginPage.models import VoterInfo
 from django.urls import reverse
+
 # Create your views here.
 
 # The webpage will load here by default, then redirect to login page
@@ -30,24 +31,85 @@ def loginError(request):
 def loginHelp(request):
     return render(request, 'loginPage/loginHelp.html', context={})
 
-# Checks user input, then redirects to proper webpage.
-def checkInput(request):
-    # -This code was run to add a user into the database-
-    # VoterInfo.objects.filter(IDNum='12345').delete()
-    # info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
-    # info.save()
+# Main create user page without error message. 
+def createUser(request):
     voterinfo = VoterInfo.objects.filter()
+    context = {
+        'voterinfo': voterinfo,
+    }
+    return render(request, 'loginPage/createUser.html', context=context)
 
-    for info in voterinfo:
-        if info.firstName == request.POST.get("first name"):
-            if info.lastName == request.POST.get("last name"):
-                if info.state == request.POST.get("state"):
-                    if info.IDNum == request.POST.get("IDNum"):
-                        if info.email == request.POST.get("email"):
-                            return HttpResponseRedirect('http://127.0.0.1:8000/polls/')
+# Page to show when user tries to create duplicate account. 
+def createUserError(request):
+    voterinfo = VoterInfo.objects.filter()
+    context= {
+        'voterinfo': voterinfo,
+    }
+    return render(request, 'loginPage/createUserError.html', context=context)
+
+# Checks user input, then redirects to proper webpage.
+def checkLogin(request):
+    # Before attempting to log into the website, you must have a user in your database.
+    # To add one, follow these instructions:
+    #   1. In terminal, type 'python manage.py shell'
+    #   2. Type p = VoterInfo(firstName='John', lastName='smith', ..., email='test@example.com')
+    #       Make sure you fill in all the fields! Check models.py for fields available. 
+    #   3. Type p.save()
+    #   Now you should have a user in your database to log in with.
+    # Alternatively, add a user with the Create User button from the website.  
+
+    voter_first_name = request.POST.get('first name')
+    voter_last_name = request.POST.get('last name')
+    voter_idnum = request.POST.get('IDNum')
+
+    voterinfo = VoterInfo.objects.filter(
+        firstName__iexact=voter_first_name,
+        lastName__iexact=voter_last_name,
+        IDNum__exact=voter_idnum
+    )
+
+    if voterinfo:
+        return HttpResponseRedirect(reverse('polls'))
 
     return HttpResponseRedirect(reverse('loginError'))
 
+# Checks that the user doesn't already exist in the database, and then adds it. 
+def checkUser(request):
+    # Checks the database for given information. If it does not already exist in the database, 
+    # it will add it. If it does, it redirects to the failure page. 
+    voter_first_name = request.POST.get('first name')
+    voter_last_name = request.POST.get('last name')
+    voter_state = request.POST.get('state')
+    voter_idnum = request.POST.get('IDNum')
+    voter_email = request.POST.get('email')
+
+    fields = [voter_first_name, voter_last_name, voter_state, voter_idnum, voter_email]
+
+    for field in fields:
+        if field == '':
+            return HttpResponseRedirect(reverse('createUserError'))
+
+    voterinfo = VoterInfo.objects.filter(
+        firstName__iexact=voter_first_name,
+        lastName__iexact=voter_last_name,
+        state__iexact=voter_state,
+        IDNum__exact=voter_idnum,
+        email__iexact=voter_email
+    )
+
+    if not voterinfo:
+        new_voter = VoterInfo(
+            firstName = voter_first_name,
+            lastName = voter_last_name,
+            state = voter_state,
+            IDNum = voter_idnum,
+            email = voter_email
+        )
+        new_voter.save()
+
+        return HttpResponseRedirect(reverse('login'))
+
+    return HttpResponseRedirect(reverse('createUserError'))
 # An attempt was made to use parameters for path(), but was unsuccessful.
 # These are code bits that may be used for the implementation later
 # return HttpResponseRedirect(reverse('login', kwargs={'valid': True}))

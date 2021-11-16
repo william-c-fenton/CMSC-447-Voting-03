@@ -21,8 +21,13 @@ from polls.models import Question
 
 class URLTests(unittest.TestCase):
     # Set up a Chrome browser
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.driver = webdriver.Chrome(executable_path=r'C:\chromedriver.exe')
+    
+    @classmethod
+    def tearDownClass(self):
+        self.driver.close()
 
     # Find the fields for test input
     def findFields(self):
@@ -33,9 +38,7 @@ class URLTests(unittest.TestCase):
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
         self.assertTrue(driver.find_element_by_name("first name"))
         self.assertTrue(driver.find_element_by_name("last name"))
-        self.assertTrue(driver.find_element_by_name("state"))
         self.assertTrue(driver.find_element_by_name("IDNum"))
-        self.assertTrue(driver.find_element_by_name("email"))
         self.assertTrue(driver.find_element_by_id("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
@@ -44,9 +47,7 @@ class URLTests(unittest.TestCase):
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginError/')
         self.assertTrue(driver.find_element_by_name("first name"))
         self.assertTrue(driver.find_element_by_name("last name"))
-        self.assertTrue(driver.find_element_by_name("state"))
         self.assertTrue(driver.find_element_by_name("IDNum"))
-        self.assertTrue(driver.find_element_by_name("email"))
         self.assertTrue(driver.find_element_by_id("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
@@ -70,12 +71,8 @@ class URLTests(unittest.TestCase):
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
         last.send_keys("Guy")
-        state = driver.find_element_by_name("state")
-        state.send_keys("Maryland")
         idnum = driver.find_element_by_name("IDNum")
         idnum.send_keys("12345")
-        email = driver.find_element_by_name("email")
-        email.send_keys("123@email.com")
 
         submit = driver.find_element_by_name("submit")
         submit.click()
@@ -99,12 +96,8 @@ class URLTests(unittest.TestCase):
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
         last.send_keys("Guy")
-        state = driver.find_element_by_name("state")
-        state.send_keys("Maryland")
         idnum = driver.find_element_by_name("IDNum")
         idnum.send_keys("12345")
-        email = driver.find_element_by_name("email")
-        email.send_keys("123@email.com")
 
         submit = driver.find_element_by_name("submit")
         submit.click()
@@ -151,6 +144,149 @@ class URLTests(unittest.TestCase):
         back.click()
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
 
-    # Close the Chrome browser
-    def tearDown(self):
-        self.driver.close()
+    def test_user_creation_fields_exist(self):
+        # Set up driver. 
+        driver = self.driver
+        driver.get('http://127.0.0.1:8000/')
+
+        # Find and click the create user button.
+        create_user_button = driver.find_element_by_name('createUser')
+        create_user_button.click()
+
+        # Verify that the forms exist on the main createUser page. 
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/createUser/')
+        self.assertTrue(driver.find_element_by_name('first name'))
+        self.assertTrue(driver.find_element_by_name('last name'))
+        self.assertTrue(driver.find_element_by_name('state'))
+        self.assertTrue(driver.find_element_by_name('IDNum'))
+        self.assertTrue(driver.find_element_by_name('email'))
+
+        # Verify that the forms exist on the createUserError page. 
+        driver.get('http://127.0.0.1:8000/createUserError/')
+
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/createUserError/')
+        self.assertTrue(driver.find_element_by_id('errorText'))
+        self.assertTrue(driver.find_element_by_name('first name'))
+        self.assertTrue(driver.find_element_by_name('last name'))
+        self.assertTrue(driver.find_element_by_name('state'))
+        self.assertTrue(driver.find_element_by_name('IDNum'))
+        self.assertTrue(driver.find_element_by_name('email'))
+
+    def test_valid_user_creation(self):
+        # This test should successfully add a user into the database, 
+        # and then login to make sure that the website works with the new user. 
+
+        # First, check the database for any duplicate entries that may be left over.
+        voterinfo = VoterInfo.objects.filter(
+            firstName__iexact='Test',
+            lastName__iexact='Guy',
+            state__iexact='MD',
+            IDNum__exact='12345',
+            email__iexact='test@example.com'
+        )
+        if voterinfo:
+            voterinfo.delete()
+
+        # Set up driver. 
+        driver = self.driver
+        driver.get('http://127.0.0.1:8000/')
+
+        # Find and click the create user button.
+        create_user_button = driver.find_element_by_name('createUser')
+        create_user_button.click()
+
+        # Verify the correct page is reached. 
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/createUser/')
+        
+        # Fill out the fields with test information.
+        first_name_field = driver.find_element_by_name('first name')
+        first_name_field.send_keys('Test')
+        last_name_field = driver.find_element_by_name('last name')
+        last_name_field.send_keys('Guy')
+        state_field = driver.find_element_by_name('state')
+        state_field.send_keys('MD')
+        idnum_field = driver.find_element_by_name('IDNum')
+        idnum_field.send_keys('12345')
+        email_field = driver.find_element_by_name('email')
+        email_field.send_keys('test@example.com')
+
+        # Click the sign up button.
+        driver.find_element_by_name('submit').click()
+
+        # This should pass, so we should be on the login page now. 
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
+
+        # If the user was correctly added, we should be able to log in and go to the polls page. 
+        first_name_field = driver.find_element_by_name('first name')
+        first_name_field.send_keys('Test')
+
+        last_name_field = driver.find_element_by_name('last name')
+        last_name_field.send_keys('Guy')
+
+        idnum_field = driver.find_element_by_name('IDNum')
+        idnum_field.send_keys('12345')
+
+        driver.find_element_by_name('submit').click()
+
+        # Now we should be on the polls page. 
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
+
+        # Delete the test user.
+        VoterInfo.objects.filter(IDNum='12345').delete()
+
+    def test_failing_user_creation(self):
+        # This test should fail to add a user to the database, 
+        # and take us to the createUserError page. 
+
+        # Create test user.
+        voterinfo = VoterInfo(
+            firstName='Test',
+            lastName='Guy',
+            state='MD',
+            IDNum='12345',
+            email='test@example.com'
+        )
+
+        voterinfo.save()
+
+        # Set up driver. 
+        driver = self.driver
+        driver.get('http://127.0.0.1:8000/')
+
+        # Find and click the create user button.
+        create_user_button = driver.find_element_by_name('createUser')
+        create_user_button.click()
+
+        # Verify the correct page is reached. 
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/createUser/')
+        
+        # Fill out the fields with test information.
+        first_name_field = driver.find_element_by_name('first name')
+        first_name_field.send_keys('Test')
+        last_name_field = driver.find_element_by_name('last name')
+        last_name_field.send_keys('Guy')
+        state_field = driver.find_element_by_name('state')
+        state_field.send_keys('MD')
+        idnum_field = driver.find_element_by_name('IDNum')
+        idnum_field.send_keys('12345')
+        email_field = driver.find_element_by_name('email')
+        email_field.send_keys('test@example.com')
+
+        # Click the sign up button.
+        driver.find_element_by_name('submit').click()
+
+        # This should fail, so we should be on createUserError page. 
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/createUserError/')
+        
+        # Delete the test user. 
+        VoterInfo.objects.filter(
+            firstName__iexact='Test',
+            lastName__iexact='Guy',
+            state__iexact='MD',
+            IDNum__exact='12345',
+            email__iexact='test@example.com'
+        ).delete()
+
+
+        
+
