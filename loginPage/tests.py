@@ -21,8 +21,13 @@ from polls.models import Question
 
 class URLTests(unittest.TestCase):
     # Set up a Chrome browser
-    def setUp(self):
+    @classmethod
+    def setUpClass(self):
         self.driver = webdriver.Chrome(executable_path=r'C:\chromedriver.exe')
+    
+    @classmethod
+    def tearDownClass(self):
+        self.driver.close()
 
     # Find the fields for test input
     def findFields(self):
@@ -33,9 +38,7 @@ class URLTests(unittest.TestCase):
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
         self.assertTrue(driver.find_element_by_name("first name"))
         self.assertTrue(driver.find_element_by_name("last name"))
-        self.assertTrue(driver.find_element_by_name("state"))
         self.assertTrue(driver.find_element_by_name("IDNum"))
-        self.assertTrue(driver.find_element_by_name("email"))
         self.assertTrue(driver.find_element_by_id("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
@@ -44,9 +47,7 @@ class URLTests(unittest.TestCase):
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/loginError/')
         self.assertTrue(driver.find_element_by_name("first name"))
         self.assertTrue(driver.find_element_by_name("last name"))
-        self.assertTrue(driver.find_element_by_name("state"))
         self.assertTrue(driver.find_element_by_name("IDNum"))
-        self.assertTrue(driver.find_element_by_name("email"))
         self.assertTrue(driver.find_element_by_id("help"))
         self.assertTrue(driver.find_element_by_name("submit"))
 
@@ -70,12 +71,8 @@ class URLTests(unittest.TestCase):
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
         last.send_keys("Guy")
-        state = driver.find_element_by_name("state")
-        state.send_keys("Maryland")
         idnum = driver.find_element_by_name("IDNum")
         idnum.send_keys("12345")
-        email = driver.find_element_by_name("email")
-        email.send_keys("123@email.com")
 
         submit = driver.find_element_by_name("submit")
         submit.click()
@@ -99,12 +96,8 @@ class URLTests(unittest.TestCase):
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
         last.send_keys("Guy")
-        state = driver.find_element_by_name("state")
-        state.send_keys("Maryland")
         idnum = driver.find_element_by_name("IDNum")
         idnum.send_keys("12345")
-        email = driver.find_element_by_name("email")
-        email.send_keys("123@email.com")
 
         submit = driver.find_element_by_name("submit")
         submit.click()
@@ -150,7 +143,3 @@ class URLTests(unittest.TestCase):
         back = driver.find_element_by_id("back")
         back.click()
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
-
-    # Close the Chrome browser
-    def tearDown(self):
-        self.driver.close()

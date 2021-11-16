@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from loginPage.models import VoterInfo
 from django.urls import reverse
+
 # Create your views here.
 
 # The webpage will load here by default, then redirect to login page
@@ -46,14 +47,6 @@ def createUserError(request):
     }
     return render(request, 'loginPage/createUserError.html', context=context)
 
-# Upon successful account creation, user is redirected back to login page to login. 
-def createUserSuccess(request):
-    voterinfo = VoterInfo.objects.filter()
-    context = {
-        'voterinfo', voterinfo,
-    }
-    return HttpResponseRedirect(reverse('login'))
-
 # Checks user input, then redirects to proper webpage.
 def checkLogin(request):
     # Before attempting to log into the website, you must have a user in your database.
@@ -76,7 +69,7 @@ def checkLogin(request):
     )
 
     if voterinfo:
-        return HttpResponseRedirect(reverse('loginSuccess'))
+        return HttpResponseRedirect(reverse('polls'))
 
     return HttpResponseRedirect(reverse('loginError'))
 
@@ -108,7 +101,7 @@ def checkUser(request):
         )
         new_voter.save()
 
-        return HttpResponseRedirect(reverse('createUserSuccess'))
+        return HttpResponseRedirect(reverse('login'))
 
     return HttpResponseRedirect(reverse('createUserError'))
 # An attempt was made to use parameters for path(), but was unsuccessful.
