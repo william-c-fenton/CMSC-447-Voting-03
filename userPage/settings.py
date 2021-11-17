@@ -27,11 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "/adminPage/static",
+]
 # Application definition
 
 INSTALLED_APPS = [
     'loginPage',
+    'adminPage',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
