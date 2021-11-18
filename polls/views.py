@@ -8,6 +8,7 @@ from django.utils import timezone
 from .models import Choice, Question, Vote
 from loginPage.models import VoterInfo
 from django.views.generic.edit import CreateView
+from polls.forms import QuestionForm, ChoiceForm
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -59,7 +60,33 @@ def vote(request, question_id):
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
-class QuestionCreate(CreateView):
-    model = Question
-    fields = ['question_text', 'pub_date']
+# Method for question creation page at polls/CreateQuestion
+# Redirects user to choice creation page after successful question creation
+def create_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
 
+        if form.is_valid():
+            new_question = form.save()
+
+            return HttpResponseRedirect(reverse('polls:create-choice', args=(new_question.id,)))
+
+    else:
+        form = QuestionForm()
+
+    return render(request, 'polls/question_form.html', {'form': form})
+
+
+def create_choice(request, pk):
+    if request.method == 'POST':
+        form = ChoiceForm(request.POST)
+
+        if form.is_valid():
+            q = Question.objects.get(pk=pk)
+            q.choice_set.create(choice_text=form.cleaned_data['choice_text'])
+            return HttpResponseRedirect(reverse('polls:detail', args=(pk,)))
+
+    else:
+        form = ChoiceForm()
+
+    return render(request, 'polls/choice_form.html', {'form': form})
