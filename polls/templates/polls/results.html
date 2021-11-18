@@ -1,9 +1,14 @@
-<h1>{{ question.question_text }}</h1>
+{% if user.is_authenticated %}
+    <h1>{{ question.question_text }}</h1>
 
-<ul>
-{% for choice in question.choice_set.all %}
-    <li>{{ choice.choice_text }} -- {{ choice.vote_set.count }} vote{{ choice.vote_set.count|pluralize }}</li>
-{% endfor %}
-</ul>
+    <ul>
+    {% for choice in question.choice_set.all %}
+        <li>{{ choice.choice_text }} -- {{ choice.vote_set.count }} vote{{ choice.vote_set.count|pluralize }}</li>
+    {% endfor %}
+    </ul>
 
-<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+    <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+{% else %}
+    <p id="error">Please log in</p>
+    <a href="http://127.0.0.1:8000/login/" id="login">login</a>
+{% endif %}

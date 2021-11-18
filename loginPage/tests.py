@@ -8,6 +8,9 @@ from django.utils import timezone
 from polls.models import Question, Choice, Vote
 from loginPage.models import VoterInfo
 
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+
 from selenium import webdriver
 import os
 from selenium.webdriver.common.keys import Keys
@@ -28,6 +31,26 @@ class URLTests(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         self.driver.close()
+
+    # Go to polls page to make sure user cannot get access to it
+    def denyAccessTest(self):
+        # Delete pre-existing user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        if not (user is None):
+            u = User.objects.get(username='Test', email='test@example.com', password='12345')
+            u.delete()
+
+        # Go to each poll page and see if information is missing
+        driver = self.driver
+        driver.get('http://127.0.0.1:8000/polls/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
+        self.assertTrue(driver.find_element_by_id("error"))
+        self.assertTrue(driver.find_element_by_id("login"))
+
+        driver.get('http://127.0.0.1:8000/polls/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/CreateQuestion')
+        self.assertTrue(driver.find_element_by_id("error"))
+        self.assertTrue(driver.find_element_by_id("login"))
 
     # Find the fields for test input
     def findFields(self):
@@ -187,6 +210,12 @@ class URLTests(unittest.TestCase):
         if voterinfo:
             voterinfo.delete()
 
+        # Delete pre-existing user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        if not (user is None):
+            u = User.objects.get(username='Test')
+            u.delete()
+
         # Set up driver. 
         driver = self.driver
         driver.get('http://127.0.0.1:8000/')
@@ -213,6 +242,10 @@ class URLTests(unittest.TestCase):
         # Click the sign up button.
         driver.find_element_by_name('submit').click()
 
+        # Check user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        self.assertTrue(not (user is None))
+
         # This should pass, so we should be on the login page now. 
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
 
@@ -231,8 +264,19 @@ class URLTests(unittest.TestCase):
         # Now we should be on the polls page. 
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
 
+        # Did we sign in properly?
+        try:
+            driver.find_element_by_id("error")
+            self.assertTrue(False)
+        except:
+            self.assertTrue(True)
+
         # Delete the test user.
         VoterInfo.objects.filter(IDNum='12345').delete()
+
+        # Delete django test user
+        u = User.objects.get(username='Test')
+        u.delete()
 
     def test_failing_user_creation(self):
         # This test should fail to add a user to the database, 

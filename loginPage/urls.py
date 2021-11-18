@@ -5,7 +5,7 @@ from polls.views import IndexView
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('login/', views.login, name='login'),
+    path('login/', views.loginPath, name='login'),
     path('loginError/', views.loginError, name='loginError'),
     path('createUser/', views.createUser, name='createUser'),
     path('createUserError/', views.createUserError, name='createUserError'),
