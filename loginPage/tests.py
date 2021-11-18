@@ -34,10 +34,13 @@ class URLTests(unittest.TestCase):
 
     # Go to polls page to make sure user cannot get access to it
     def denyAccessTest(self):
+        # Delete test voter information
+        VoterInfo.objects.filter(IDNum='12345').delete()
+
         # Delete pre-existing user
         user = authenticate(username='Test', email='test@example.com', password='12345')
         if not (user is None):
-            u = User.objects.get(username='Test', email='test@example.com', password='12345')
+            u = User.objects.get(username='Test')
             u.delete()
 
         # Go to each poll page and see if information is missing
@@ -83,8 +86,12 @@ class URLTests(unittest.TestCase):
     # Can the login info take the user to the polls page?
     def testFieldInputTrue(self):
         # Add test voter information
-        info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com",)
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com",)
         info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
 
         # Login normally
         driver = self.driver
@@ -131,6 +138,12 @@ class URLTests(unittest.TestCase):
 
         # Delete test voter information
         VoterInfo.objects.filter(IDNum='12345').delete()
+
+        # Delete user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        if not (user is None):
+            u = User.objects.get(username='Test')
+            u.delete()
 
     # Can the user get to the help page?
     def testHelp(self):
@@ -265,6 +278,7 @@ class URLTests(unittest.TestCase):
         self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
 
         # Did we sign in properly?
+        # Is the error message absent from the page?
         try:
             driver.find_element_by_id("error")
             self.assertTrue(False)
