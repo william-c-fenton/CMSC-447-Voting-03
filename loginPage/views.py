@@ -30,7 +30,7 @@ def loginError(request):
     }
     return render(request, 'loginPage/loginError.html', context=context)
 
-# Page when user successfully logs in. Temporary page to use before voting page is made.
+# Page if user needs help with information on how to login
 def loginHelp(request):
     return render(request, 'loginPage/loginHelp.html', context={})
 
@@ -71,7 +71,9 @@ def checkLogin(request):
         IDNum__exact=voter_idnum
     )
 
+    # If the user exists, authenticate the user then login
     if voterinfo:
+        # django User object that matches VoterInfo object must exist in order to login
         user = authenticate(username=voter_first_name, password=voter_idnum)
         if user is not None:
             login(request, user)
@@ -113,6 +115,7 @@ def checkUser(request):
         )
         new_voter.save()
 
+        # A user will have a VoterInfo object and a django User object
         user = User.objects.create_user(voter_first_name, voter_email, voter_idnum)
         user.save()
 
