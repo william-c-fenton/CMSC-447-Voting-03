@@ -50,13 +50,11 @@ def vote(request, question_id):
     # Add new vote object stored in list of vote objects for each choice
     # Number of vote objects in the list for each choice is the number of votes received
     else:
-        voter_info = VoterInfo(firstName="John", lastName="Doe", state="MD", IDNum="5555555555", email="test@example.com")  # temp dummy object
-        voter_info.save()
-        selected_choice.vote_set.create(choice=selected_choice, voter=voter_info)
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+        if request.user.is_authenticated:
+            voter_info = VoterInfo.objects.get(email=request.user.email)
+            selected_choice.vote_set.create(choice=selected_choice, voter=voter_info)
+
+            return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
 class QuestionCreate(CreateView):
