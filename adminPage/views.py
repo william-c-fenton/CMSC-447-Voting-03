@@ -25,7 +25,3 @@ def index(request):
 
 
 
-
-def all_polls(request):
-    return render(request, 'adminPage/polls.html', context={})
-
