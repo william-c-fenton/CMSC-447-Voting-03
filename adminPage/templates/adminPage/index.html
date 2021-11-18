@@ -27,15 +27,54 @@
             <th>Option 1</th>
             <th>Option 2</th>
             <th>Option 3</th>
+            <th>Option 4</th>
         </tr>
+        <!--
         <tr>
             <td>Who is your selection for president of the United States?</td>
             <td>Joesph Biden</td>
             <td>Donald Trump</td>
         </tr>
+        -->
+
+            {% for pollItem in pollItems %}
+                <tr>
+                    <td>{{pollItem.question}}</td>
+                    <td>{{pollItem.option1}}</td>
+                    <td>{{pollItem.option2}}</td>
+                    <td>{{pollItem.option3}}</td>
+                    <td>{{pollItem.option4}}</td>
+                </tr>
+            {% endfor %}
 
     </table>
 
+
+
+
+    <form action='' method='post'>
+        {% csrf_token %}
+        <br>
+        <input type="text" size="101" name="addingQuestion" placeholder="Enter a new ballot question.">
+        <br ><br>
+        <input type="text" size="101" name="addingQuestionOption1" placeholder="Enter an option to the question.">
+        <br>
+        <input type="text" size="101" name="addingQuestionOption2" placeholder="Enter an option to the question.">
+        <br>
+        <input type="text" size="101" name="addingQuestionOption3" placeholder="Enter an option to the question.">
+        <br>
+        <input type="text" size="101" name="addingQuestionOption4" placeholder="Enter an option to the question.">
+        <br><br>
+
+        <button type='submit'>Add a Question</button>
+    </form>
+<!--
+    <form action='deleteQuestion' method='GET'>
+        <button type='submit'>Delete a Question</button>
+    </form> -->
 </body>
+
+<head>
+
 </html>
 
