@@ -9,4 +9,4 @@ class QuestionForm(ModelForm):
 
 
 class ChoiceForm(Form):
-    choice_text = CharField(label='Choice Text name', max_length=500)
+    choice_text = CharField(required=False, label='Choice text name', max_length=500)

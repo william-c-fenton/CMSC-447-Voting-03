@@ -78,15 +78,20 @@ def create_question(request):
 
 
 def create_choice(request, pk):
+    form = ChoiceForm()
+
     if request.method == 'POST':
-        form = ChoiceForm(request.POST)
 
-        if form.is_valid():
-            q = Question.objects.get(pk=pk)
-            q.choice_set.create(choice_text=form.cleaned_data['choice_text'])
+        # Save new choice if save button was pressed
+        if "savebtn" in request.POST:
+            form = ChoiceForm(request.POST)
+
+            # make sure that choice text is valid and not empty
+            if form.is_valid() and form.cleaned_data['choice_text'] != '':
+                q = Question.objects.get(pk=pk)
+                q.choice_set.create(choice_text=form.cleaned_data['choice_text'])
+                return HttpResponseRedirect(reverse('polls:create-choice', args=(pk,)))
+        else:
             return HttpResponseRedirect(reverse('polls:detail', args=(pk,)))
-
-    else:
-        form = ChoiceForm()
 
     return render(request, 'polls/choice_form.html', {'form': form})
