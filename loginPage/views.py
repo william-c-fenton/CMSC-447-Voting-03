@@ -5,6 +5,9 @@ from django.shortcuts import render
 from loginPage.models import VoterInfo
 from django.urls import reverse
 
+# !!! added
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 # Create your views here.
 
 # The webpage will load here by default, then redirect to login page
@@ -12,7 +15,7 @@ def index(request):
     return HttpResponseRedirect(reverse('login'))
 
 # The main login page without error message
-def login(request):
+def loginPath(request):
     voterinfo = VoterInfo.objects.filter()
     context = {
         'voterinfo': voterinfo,
@@ -69,7 +72,10 @@ def checkLogin(request):
     )
 
     if voterinfo:
-        return HttpResponseRedirect(reverse('polls'))
+        user = authenticate(username=voter_first_name, password=voter_idnum)
+        if user is not None:
+            login(request, user)
+            return HttpResponseRedirect(reverse('polls'))
 
     return HttpResponseRedirect(reverse('loginError'))
 
@@ -106,6 +112,9 @@ def checkUser(request):
             email = voter_email
         )
         new_voter.save()
+
+        user = User.objects.create_user(voter_first_name, voter_email, voter_idnum)
+        user.save()
 
         return HttpResponseRedirect(reverse('login'))
 
