@@ -45,7 +45,7 @@ _python manage.py test loginPage_
 
 
 To run tests for the polls page you need only to have one terminal open.
-Use this command in the root directory of the project:
+Use the following command in the root directory of the project:
 
 _python manage.py test polls_
 
