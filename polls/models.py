@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.urls import reverse
 from loginPage.models import VoterInfo
 
+
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
@@ -18,6 +19,7 @@ class Question(models.Model):
 
     def get_absolute_url(self):
         return reverse('polls:detail', kwargs={'pk': self.pk})
+
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)

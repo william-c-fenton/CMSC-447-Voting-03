@@ -364,3 +364,111 @@ class BallotCreationTests(LiveServerTestCase):
 
         # Verify that we were sent to the correct question detail page
         self.assertEqual(self.driver.current_url, self.get_url('/polls/' + str(new_question.id) + '/'))
+
+
+class VoteTests(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        self.driver.close()
+        super().tearDownClass()
+
+    # helper method to open to a specific page
+    def open(self, extension):
+        self.driver.get("%s%s" % (self.live_server_url, extension))
+
+    # helper method to get current url with extensions
+    def get_url(self, extension):
+        return "%s%s" % (self.live_server_url, extension)
+
+    # helper method to login and create dummy user
+    def dummy_login(self):
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com", )
+        info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
+
+        # Login normally
+        driver = self.driver
+        self.open('/login/')
+
+        first = driver.find_element_by_name("first name")
+        first.send_keys("Test")
+        last = driver.find_element_by_name("last name")
+        last.send_keys("Guy")
+        idnum = driver.find_element_by_name("IDNum")
+        idnum.send_keys("12345")
+        submit = driver.find_element_by_name("submit")
+        submit.click()
+
+    # helper function to create a dummy question in the database
+    def create_question(self):
+        self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
+
+        self.question.choice_set.create(choice_text='Yes')
+        self.question.choice_set.create(choice_text='No')
+
+
+    def test_vote(self):
+        # Verify that a vote in a poll is counted
+
+        self.create_question()
+
+        # Login and go to the first poll in the detail page
+        self.dummy_login()
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # Make sure that our vote is counted in the database
+        self.assertEqual(Choice.objects.all()[0].vote_set.count(), 1)
+
+    def test_vote_association(self):
+        # Verify that a vote in a poll is associated with the user who voted
+
+        self.create_question()
+
+        # login and go to the first poll in the detail page
+        self.dummy_login()
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # Make sure that our vote is associated with the proper user
+        voterinfo = VoterInfo.objects.get(firstName="Test")
+        self.assertTrue(Vote.objects.filter(voter=voterinfo).exists())
+
+    def test_not_logged_in(self):
+        # Verify that we cannot vote on a poll if we are not logged in
+
+        self.create_question()
+
+        # Attempt to vote on a question
+        ques_id = Question.objects.all()[0].id
+        self.open("/polls/" + str(ques_id) + "/")
+
+        login_button = self.driver.find_element_by_id("login")
+        login_button.click()
+
+        # Make sure we are redirected to the login page
+        self.assertEqual(self.driver.current_url, self.get_url('/login/'))
