@@ -6,24 +6,30 @@
 </head>
 <body>
     <div class="container">
-        Welcome to the Voting App Login Page.</br>
+        Welcome to the Voting App Sign Up Page.</br>
         Please enter information below.</br>
 
         <!--Basic login information to be checked against info in database -->
-        <form action="{% url 'checkLogin' %}" method="post">
+        <p style="color:red;" id="errorText">Error creating user.</p>
+
+        <form action="{% url 'checkUser' %}" method="post">
             {% csrf_token %}
             Enter First name:
             <input type="text" name="first name"> </br>
             Enter Last name:
             <input type="text" name="last name"> </br>
+            Enter State:
+            <input type="text" name="state"> </br>
             Enter ID:
             <input type="text" name="IDNum"> </br>
+            Enter email:
+            <input type="text" name="email"> </br>
             <input type="button" value="help" name="help">
-            <input type="submit" name="submit" value="Login">
+            <input type="submit" name="submit" value="Sign Up">
         </form>
 
-        <form action="{% url 'createUser' %}" method="post">{% csrf_token %}
-            <input type="submit" name="createUser" value="Create User">
+        <form action="{% url 'login' %}" method="post">{% csrf_token %}
+            <input type="submit" name="login" value="Log In">
         </form>
 
         <!--Link to help page-->

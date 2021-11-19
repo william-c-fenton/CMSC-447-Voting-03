@@ -8,6 +8,7 @@ from django.utils import timezone
 from .models import Choice, Question, Vote
 from loginPage.models import VoterInfo
 from django.views.generic.edit import CreateView
+from polls.forms import QuestionForm, ChoiceForm
 
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
@@ -50,16 +51,46 @@ def vote(request, question_id):
     # Add new vote object stored in list of vote objects for each choice
     # Number of vote objects in the list for each choice is the number of votes received
     else:
-        voter_info = VoterInfo(firstName="John", lastName="Doe", state="MD", IDNum="5555555555", email="test@example.com")  # temp dummy object
-        voter_info.save()
-        selected_choice.vote_set.create(choice=selected_choice, voter=voter_info)
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+        # Associate a user's vote with their voterinfo
+        if request.user.is_authenticated:
+            voter_info = VoterInfo.objects.get(email=request.user.email)
+            selected_choice.vote_set.create(choice=selected_choice, voter=voter_info)
+
+            return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
-class QuestionCreate(CreateView):
-    model = Question
-    fields = ['question_text', 'pub_date']
+# Method for question creation page at polls/CreateQuestion
+# Redirects user to choice creation page after successful question creation
+def create_question(request):
+    if request.method == 'POST':
+        form = QuestionForm(request.POST)
 
+        if form.is_valid():
+            new_question = form.save()
+
+            return HttpResponseRedirect(reverse('polls:create-choice', args=(new_question.id,)))
+
+    else:
+        form = QuestionForm()
+
+    return render(request, 'polls/question_form.html', {'form': form})
+
+
+def create_choice(request, pk):
+    form = ChoiceForm()
+
+    if request.method == 'POST':
+
+        # Save new choice if save button was pressed
+        if "savebtn" in request.POST:
+            form = ChoiceForm(request.POST)
+
+            # make sure that choice text is valid and not empty
+            if form.is_valid() and form.cleaned_data['choice_text'] != '':
+                q = Question.objects.get(pk=pk)
+                q.choice_set.create(choice_text=form.cleaned_data['choice_text'])
+                return HttpResponseRedirect(reverse('polls:create-choice', args=(pk,)))
+        else:
+            return HttpResponseRedirect(reverse('polls:detail', args=(pk,)))
+
+    return render(request, 'polls/choice_form.html', {'form': form})

@@ -10,22 +10,25 @@
         Please enter information below.</br>
 
         <!--Page will be brought up if first attempt failed.-->
-        <form action="{% url 'checkInput' %}" method="post">
+        <form action="{% url 'checkLogin' %}" method="post">
             {% csrf_token %}
-            <p style="color:red;">The information provided does not match in our database. Try again.</p>
+            <p style="color:red;">The information provided does not match in our database. Try creating an account?</p>
             Enter First name:
             <input type="text" name="first name"> </br>
             Enter Last name:
             <input type="text" name="last name"> </br>
-            Enter State:
-            <input type="text" name="state"> </br>
             Enter ID:
             <input type="text" name="IDNum"> </br>
-            Enter email:
-            <input type="text" name="email"> </br>
             <input type="button" value="help" name="help">
             <input type="submit" name="submit">
         </form>
+
+        <form action="{% url 'createUser' %}" method="post">{% csrf_token %}
+            <input type="submit" name="createUser" value="Create User">
+        </form>
+
+        <!--Link to help page-->
+        <a href="http://127.0.0.1:8000/loginHelp/" id="help">help</a>
     </div>
 </body>
 </html>
