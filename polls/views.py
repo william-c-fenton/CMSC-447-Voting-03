@@ -51,6 +51,7 @@ def vote(request, question_id):
     # Add new vote object stored in list of vote objects for each choice
     # Number of vote objects in the list for each choice is the number of votes received
     else:
+        # Associate a user's vote with their voterinfo
         if request.user.is_authenticated:
             voter_info = VoterInfo.objects.get(email=request.user.email)
             selected_choice.vote_set.create(choice=selected_choice, voter=voter_info)
