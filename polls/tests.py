@@ -163,6 +163,7 @@ import time
 
 
 class BallotCreationTests(LiveServerTestCase):
+
     @classmethod
     def setUpClass(self):
         self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
@@ -171,26 +172,36 @@ class BallotCreationTests(LiveServerTestCase):
 
         self.question.choice_set.create(choice_text='Yes')
         self.question.choice_set.create(choice_text='No')
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(self):
         self.driver.close()
+        super().tearDownClass()
+
+    # helper method to open to a specific page
+    def open(self, url):
+        self.driver.get("%s%s" % (self.live_server_url, url))
+
+    def get_url(self, url):
+        return "%s%s" % (self.live_server_url, url)
 
     def test_login_to_index(self):
         # Verify that the webpage takes you to the index page after logging in
 
         # Add test voter information
-        new_info = VoterInfo(firstName="Test", lastName="Guy", state="Maryland", IDNum="12345", email="123@email.com", )
-        new_info.save()
-        new_user = User.objects.create_user("Test", "123@email.com", "12345")
-        new_user.save()
-        print("YEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEET")
-        print(VoterInfo.objects.get(pk=1))
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com", )
+        info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
 
         # Login normally
         driver = self.driver
-        driver.get('http://127.0.0.1:8000/')
-        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/login/')
+        self.open('/login/')
+
+        self.assertEqual(driver.current_url, "%s%s" % (self.live_server_url, '/login/'))
         first = driver.find_element_by_name("first name")
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
@@ -200,11 +211,10 @@ class BallotCreationTests(LiveServerTestCase):
 
         submit = driver.find_element_by_name("submit")
         submit.click()
-        time.sleep(100)
 
         # Was login successful?
         # NOTE: was edited to polls page
-        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
+        self.assertEqual(driver.current_url, self.get_url('/polls/'))
 
 
 
