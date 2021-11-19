@@ -10,8 +10,8 @@ from loginPage.models import VoterInfo
 from selenium import webdriver
 import os
 from selenium.webdriver.common.keys import Keys
-import datetime
-import time
+from datetime import datetime
+from time import sleep
 
 # class QuestionModelTests(TestCase):
 #
@@ -180,11 +180,34 @@ class BallotCreationTests(LiveServerTestCase):
         super().tearDownClass()
 
     # helper method to open to a specific page
-    def open(self, url):
-        self.driver.get("%s%s" % (self.live_server_url, url))
+    def open(self, extension):
+        self.driver.get("%s%s" % (self.live_server_url, extension))
 
-    def get_url(self, url):
-        return "%s%s" % (self.live_server_url, url)
+    # helper method to get current url with extensions
+    def get_url(self, extension):
+        return "%s%s" % (self.live_server_url, extension)
+
+    # helper method to login and create dummy user
+    def dummy_login(self):
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com", )
+        info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
+
+        # Login normally
+        driver = self.driver
+        self.open('/login/')
+
+        first = driver.find_element_by_name("first name")
+        first.send_keys("Test")
+        last = driver.find_element_by_name("last name")
+        last.send_keys("Guy")
+        idnum = driver.find_element_by_name("IDNum")
+        idnum.send_keys("12345")
+        submit = driver.find_element_by_name("submit")
+        submit.click()
 
     def test_login_to_index(self):
         # Verify that the webpage takes you to the index page after logging in
@@ -201,7 +224,7 @@ class BallotCreationTests(LiveServerTestCase):
         driver = self.driver
         self.open('/login/')
 
-        self.assertEqual(driver.current_url, "%s%s" % (self.live_server_url, '/login/'))
+        self.assertEqual(driver.current_url, self.get_url('/login/'))
         first = driver.find_element_by_name("first name")
         first.send_keys("Test")
         last = driver.find_element_by_name("last name")
@@ -216,8 +239,24 @@ class BallotCreationTests(LiveServerTestCase):
         # NOTE: was edited to polls page
         self.assertEqual(driver.current_url, self.get_url('/polls/'))
 
+    def test_question_creation_to_choice_creation(self):
+        # Verify that you are taken to the choice creation page after creating a question
 
+        # Go to the ballot creation page
+        self.dummy_login()
+        self.open('/polls/CreateQuestion/')
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/CreateQuestion/'))
 
+        # Create the question as normal
+        choice_text = self.driver.find_element_by_name("question_text")
+        choice_text.send_keys("What is up?")
+        pub_date = self.driver.find_element_by_name("pub_date")
+        pub_date.send_keys(datetime.now().strftime("%Y-%m-%d"))
+        submit = self.driver.find_element_by_name("submit")
+        submit.click()
+
+        # Verify that we were sent to the choice creation page
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/2/CreateChoice/'))
     
 
 
