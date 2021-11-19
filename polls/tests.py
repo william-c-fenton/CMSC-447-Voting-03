@@ -239,8 +239,11 @@ class BallotCreationTests(LiveServerTestCase):
         # NOTE: was edited to polls page
         self.assertEqual(driver.current_url, self.get_url('/polls/'))
 
-    def test_question_creation_to_choice_creation(self):
-        # Verify that you are taken to the choice creation page after creating a question
+    def test_question_creation(self):
+        # Verify that a question added through the ballot creation page is in the database
+
+        question_string = "What is up?"
+        now_string = datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -248,15 +251,116 @@ class BallotCreationTests(LiveServerTestCase):
         self.assertEqual(self.driver.current_url, self.get_url('/polls/CreateQuestion/'))
 
         # Create the question as normal
-        choice_text = self.driver.find_element_by_name("question_text")
-        choice_text.send_keys("What is up?")
+        question_text = self.driver.find_element_by_name("question_text")
+        question_text.send_keys(question_string)
         pub_date = self.driver.find_element_by_name("pub_date")
-        pub_date.send_keys(datetime.now().strftime("%Y-%m-%d"))
+        pub_date.send_keys(now_string)
         submit = self.driver.find_element_by_name("submit")
         submit.click()
 
+        # Verify that our new question is in the database
+        self.assertTrue(Question.objects.filter(question_text=question_string).exists())
+
+    def test_question_creation_to_choice_creation(self):
+        # Verify that you are taken to the choice creation page after creating a question
+
+        question_string = "What is up dog?"
+        now_string = datetime.now().strftime("%Y-%m-%d")
+
+        # Go to the ballot creation page
+        self.dummy_login()
+        self.open('/polls/CreateQuestion/')
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/CreateQuestion/'))
+
+        # Create the question as normal
+        question_text = self.driver.find_element_by_name("question_text")
+        question_text.send_keys(question_string)
+        pub_date = self.driver.find_element_by_name("pub_date")
+        pub_date.send_keys(now_string)
+        submit = self.driver.find_element_by_name("submit")
+        submit.click()
+
+        new_question = Question.objects.get(question_text=question_string)
         # Verify that we were sent to the choice creation page
-        self.assertEqual(self.driver.current_url, self.get_url('/polls/2/CreateChoice/'))
-    
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/' + str(new_question.id) + '/CreateChoice/'))
 
+    def test_choice_creation(self):
+        # Verify that a choice added through the choice creation page is added to the correct question
 
+        question_string = "What is up my homie?"
+        now_string = datetime.now().strftime("%Y-%m-%d")
+
+        # Go to the ballot creation page
+        self.dummy_login()
+        self.open('/polls/CreateQuestion/')
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/CreateQuestion/'))
+
+        # Create the question as normal
+        question_text = self.driver.find_element_by_name("question_text")
+        question_text.send_keys(question_string)
+        pub_date = self.driver.find_element_by_name("pub_date")
+        pub_date.send_keys(now_string)
+        submit = self.driver.find_element_by_name("submit")
+        submit.click()
+
+        new_question = Question.objects.get(question_text=question_string)
+        # Verify that we were sent to the choice creation page
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/' + str(new_question.id) + '/CreateChoice/'))
+
+        # Create the choices as normal
+        choice_text = self.driver.find_element_by_name("choice_text")
+        choice_text.send_keys("Not much, boss.")
+        submit = self.driver.find_element_by_name("savebtn")
+        submit.click()
+
+        choice_text = self.driver.find_element_by_name("choice_text")
+        choice_text.send_keys("The sky, I think.")
+        submit = self.driver.find_element_by_name("savebtn")
+        submit.click()
+
+        exit_btn = self.driver.find_element_by_name("exitbtn")
+        exit_btn.click()
+
+        # Verify that our new choices are associated with our new question
+        self.assertTrue(Choice.objects.filter(choice_text="Not much, boss.", question=new_question).exists())
+        self.assertTrue(Choice.objects.filter(choice_text="The sky, I think.", question=new_question).exists())
+
+    def test_choice_creation_to_question_detail(self):
+        # Verify that you are taken to the question detail page after creating a choice and hitting "Exit" button
+
+        question_string = "What is up my driller?"
+        now_string = datetime.now().strftime("%Y-%m-%d")
+
+        # Go to the ballot creation page
+        self.dummy_login()
+        self.open('/polls/CreateQuestion/')
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/CreateQuestion/'))
+
+        # Create the question as normal
+        question_text = self.driver.find_element_by_name("question_text")
+        question_text.send_keys(question_string)
+        pub_date = self.driver.find_element_by_name("pub_date")
+        pub_date.send_keys(now_string)
+        submit = self.driver.find_element_by_name("submit")
+        submit.click()
+
+        new_question = Question.objects.get(question_text=question_string)
+        # Verify that we were sent to the choice creation page
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/' + str(new_question.id) + '/CreateChoice/'))
+
+        # Create the choices as normal
+        choice_text = self.driver.find_element_by_name("choice_text")
+        choice_text.send_keys("Not much.")
+        submit = self.driver.find_element_by_name("savebtn")
+        submit.click()
+
+        choice_text = self.driver.find_element_by_name("choice_text")
+        choice_text.send_keys("The sky.")
+        submit = self.driver.find_element_by_name("savebtn")
+        submit.click()
+
+        exit_btn = self.driver.find_element_by_name("exitbtn")
+        exit_btn.click()
+
+        # Verify that we were sent to the correct question detail page
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/' + str(new_question.id) + '/'))
