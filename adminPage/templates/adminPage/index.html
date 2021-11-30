@@ -28,6 +28,7 @@
             <th>Option 2</th>
             <th>Option 3</th>
             <th>Option 4</th>
+            <th>Delete</th>
         </tr>
 
 
@@ -38,6 +39,7 @@
                     <td>{{pollItem.option2}}</td>
                     <td>{{pollItem.option3}}</td>
                     <td>{{pollItem.option4}}</td>
+                    <td><input type="checkbox" name ="pollItemDelete" id = "pollItem_delete" value={{pollItem.question}}></td>
                 </tr>
             {% endfor %}
 
@@ -46,7 +48,7 @@
 
 
 
-    <form action='' method='post'>
+    <form action='' method='POST' >
         {% csrf_token %}
         <br>
         <input type="text" size="101" name="addingQuestion" placeholder="Enter a new ballot question.">
@@ -59,9 +61,15 @@
         <br>
         <input type="text" size="101" name="addingQuestionOption4" placeholder="Enter an option to the question.">
         <br><br>
-
-        <button type='submit'>Add a Question</button>
+        <button type='submit' >Add a Question</button>
     </form>
+
+    <form action="deleteSelectedQuestions" method="post" class="deletingQuestions">
+        {% csrf_token %}
+
+        <button>Delete Selected Questions</button>
+    </form>
+
 <!--
     <form action='deleteQuestion' method='GET'>
         <button type='submit'>Delete a Question</button>

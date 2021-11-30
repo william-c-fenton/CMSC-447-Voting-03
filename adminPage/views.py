@@ -1,8 +1,9 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from .models import PollItem
 
 # Create your views here.
+
 
 def index(request):
     if request.method == 'POST':
@@ -24,4 +25,8 @@ def index(request):
     return render(request, 'adminPage/index.html', {"pollItems": data})
 
 
+def deleteSelectedQuestions(request):
+    print("deleteing questions")
+    data = PollItem.objects.all()
+    return HttpResponseRedirect('/adminPage')
 
