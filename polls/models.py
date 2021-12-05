@@ -33,4 +33,4 @@ class Choice(models.Model):
 # with a user so that a user can not vote twice in a ballot.
 class Vote(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    voter = models.ForeignKey(VoterInfo, on_delete=models.DO_NOTHING)
+    voter = models.ForeignKey(VoterInfo, on_delete=models.CASCADE)
