@@ -36,7 +36,7 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
-
+@sensitive_variables('voter_info')
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:

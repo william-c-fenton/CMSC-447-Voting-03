@@ -51,6 +51,7 @@ def createUserError(request):
     return render(request, 'loginPage/createUserError.html', context=context)
 
 # Checks user input, then redirects to proper webpage.
+@sensitive_variables()
 def checkLogin(request):
     # Before attempting to log into the website, you must have a user in your database.
     # To add one, follow these instructions:
@@ -81,7 +82,9 @@ def checkLogin(request):
 
     return HttpResponseRedirect(reverse('loginError'))
 
+
 # Checks that the user doesn't already exist in the database, and then adds it. 
+@sensitive_variables()
 def checkUser(request):
     # Checks the database for given information. If it does not already exist in the database, 
     # it will add it. If it does, it redirects to the failure page. 
