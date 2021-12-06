@@ -1,0 +1,17 @@
+{% load static %}
+{% if user.is_authenticated %}
+    <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+
+    {% if latest_question_list %}
+        <ul>
+        {% for question in latest_question_list %}
+            <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No polls are available.</p>
+    {% endif %}
+{% else %}
+    <p id="error">Please log in</p>
+    <a href="http://127.0.0.1:8000/login/" id="login">login</a>
+{% endif %}
