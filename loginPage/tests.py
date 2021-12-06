@@ -89,6 +89,12 @@ class URLTests(unittest.TestCase):
         info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com",)
         info.save()
 
+        # Delete pre-existing user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        if not (user is None):
+            u = User.objects.get(username='Test')
+            u.delete()
+
         # Make user
         user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
         user.save()
