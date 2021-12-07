@@ -9,13 +9,14 @@
 
 <body>
     <header class="p-3 bg-black text-white">
-        <div class="container" id="question_text">
-            {{ question.question_text }} </br>
+        <div class="container">
+             Please Select a Choice</br>
         </div>
     </header>
 
     <div class="px-3 py-2 border-bottom mb-3">
-        <div class="container">
+        <div class="container" id="question_text">
+            <h1>{{ question.question_text }}</h1>
             <form action="{% url 'polls:vote' question.id %}" method="post">
             {% csrf_token %}
             <fieldset>

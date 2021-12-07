@@ -9,12 +9,13 @@
 <body>
     <header class="p-3 bg-black text-white">
         <div class="container">
-            {{ question.question_text }} </br>
+            Ballot Results </br>
         </div>
     </header>
 
     <div class="px-3 py-2 border-bottom mb-3">
         <div class="container">
+            <h1>{{ question.question_text }}</h1>
             <ul>
             {% for choice in question.choice_set.all %}
                 <li>{{ choice.choice_text }} -- {{ choice.vote_set.count }} vote{{ choice.vote_set.count|pluralize }}</li>
