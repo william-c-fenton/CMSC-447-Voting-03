@@ -10,7 +10,7 @@ from loginPage.models import VoterInfo
 from selenium import webdriver
 import os
 from selenium.webdriver.common.keys import Keys
-from datetime import datetime
+import datetime
 from time import sleep
 
 class QuestionModelTests(TestCase):
@@ -130,7 +130,7 @@ class QuestionDetailViewTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
 
-class ResultsViewTests(TestCase):
+class ResultsViewTests(LiveServerTestCase):
     @classmethod
     def setUpClass(self):
         self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
@@ -144,12 +144,20 @@ class ResultsViewTests(TestCase):
     def tearDownClass(self):
         self.driver.close()
 
+    # helper method to open to a specific page
+    def open(self, extension):
+        self.driver.get("%s%s" % (self.live_server_url, extension))
+
+    # helper method to get current url with extensions
+    def get_url(self, extension):
+        return "%s%s" % (self.live_server_url, extension)
+
     def test_vote_takes_user_to_results_page(self):
         # Verify that the webpage takes you to the results page after clicking the vote button.
 
         # Navigate to the voting page for our poll.
         driver = self.driver
-        driver.get(f'http://127.0.0.1:8000/polls/{self.question.id}')
+        self.open(f'/polls/{self.question_id}')
 
         # Input a vote (just the first option is fine here).
         driver.find_element_by_id('choice1').click()
@@ -158,8 +166,7 @@ class ResultsViewTests(TestCase):
         driver.find_element_by_xpath(".//input[@value='Vote']").click()
 
         # Verify that we are now currently on the results page.
-        self.assertEqual(driver.current_url,
-            f'http://127.0.0.1:8000/polls/{self.question.id}/results/')
+        self.assertEqual(driver.current_url, self.get_url(f'/polls/{self.question_id}/results'))
 
 
 class BallotCreationTests(LiveServerTestCase):
@@ -243,7 +250,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that a question added through the ballot creation page is in the database
 
         question_string = "What is up?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -265,7 +272,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that you are taken to the choice creation page after creating a question
 
         question_string = "What is up dog?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -288,7 +295,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that a choice added through the choice creation page is added to the correct question
 
         question_string = "What is up my homie?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -329,7 +336,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that you are taken to the question detail page after creating a choice and hitting "Exit" button
 
         question_string = "What is up my driller?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
