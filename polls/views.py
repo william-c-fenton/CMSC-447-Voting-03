@@ -40,6 +40,13 @@ class ResultsView(generic.DetailView):
 @sensitive_variables('voter_info', 'voter_idnum', 'hash_func', 'hashed_idnum')
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
+    choices = Choice.objects.filter(question=question)
+    votes = []
+    for achoice in choices:
+        choice_votes = Vote.objects.filter(choice=achoice)
+        for avote in choice_votes:
+            votes.append(avote)
+
     try:
         selected_choice = question.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
@@ -61,9 +68,21 @@ def vote(request, question_id):
             hash_func.update(voter_idnum.encode())
             hashed_idnum = hash_func.digest()
 
-            selected_choice.vote_set.create(choice=selected_choice, voter=f'{hashed_idnum}')
+            voted = False
+            # Iterate through the votes for a ballot to see if user has already voted
+            for avote in votes:
+                if avote.voter == f'{hashed_idnum}':
+                    voted = True
 
-            return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+            # Return an error if the user has already voted before
+            if voted:
+                return render(request, 'polls/detail.html', {
+                    'question': question,
+                    'error_message': "You have already voted on this ballot.",
+                })
+            else:
+                selected_choice.vote_set.create(choice=selected_choice, voter=f'{hashed_idnum}')
+                return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 
 
 # Method for question creation page at polls/CreateQuestion
