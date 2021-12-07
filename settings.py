@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # This is in a .env file that is given to you to put in the directory!
-SECRET_KEY = 'django-insecure-3*z6&&7(hy!#ap#s^o+lw#b8-ya&wek!n!7(3ikr_!@=i177#%'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,7 +37,6 @@ STATICFILES_DIRS = [
 
 INSTALLED_APPS = [
     'loginPage',
-    'adminPage',
     'polls.apps.PollsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_tables2',
 ]
 
 MIDDLEWARE = [
