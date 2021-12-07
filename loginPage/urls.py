@@ -13,6 +13,7 @@ urlpatterns = [
     path('checkUser/', views.checkUser, name='checkUser'),
     path('loginHelp/', views.loginHelp, name='loginHelp'),
     path('checkLogin/', views.checkLogin, name='checkLogin'),
+    path('logoutPage/', views.logoutPage, name='logoutPage'),
     path('polls/', IndexView.as_view(), name='polls')
 ]
 
