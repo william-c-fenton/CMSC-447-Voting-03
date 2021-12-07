@@ -30,7 +30,9 @@ class Choice(models.Model):
 
 
 # Vote model gets stored in list of votes for each choice. Each vote is associated
-# with a user so that a user can not vote twice in a ballot.
+# with a user so that a user can not vote twice in a ballot. The voter field will consist
+# of hashed values of the voter's IDNum, for obfuscation and security.
 class Vote(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    voter = models.ForeignKey(VoterInfo, on_delete=models.DO_NOTHING)
+    voter = models.TextField()
+
