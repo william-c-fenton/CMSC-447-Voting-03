@@ -27,6 +27,7 @@ def index(request):
 
 def deleteSelectedQuestions(request):
     print("deleteing questions")
+    pollItem.objects.filter(question = request.POST["question"]).delete()
     data = PollItem.objects.all()
     return HttpResponseRedirect('/adminPage')
 

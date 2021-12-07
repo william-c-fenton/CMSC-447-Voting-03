@@ -3,13 +3,14 @@ h1 {
     font-family: 'Source Sans Pro', sans-serif;
     color: white;
 }
-
+/*
 div {
     background-color: #1C6EA4;
     padding: 40px;
     border-top: none;
 
 }
+*/
 
 
 ul{
@@ -25,6 +26,8 @@ table th {
     background-color: black;
     font-family: 'Source Sans Pro', sans-serif;
     color: white
+    border-left: 10px;
+    border-right: 10px;
 }
 table td{
     border: 2px solid black;
