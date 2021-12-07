@@ -83,6 +83,8 @@ def create_question(request):
     return render(request, 'polls/question_form.html', {'form': form})
 
 
+# Method for question creation page at polls/CreateQuestion
+# Redirects user to choice creation page after successful question creation
 def create_choice(request, pk):
     form = ChoiceForm()
 
