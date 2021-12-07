@@ -129,3 +129,8 @@ def checkUser(request):
 # An attempt was made to use parameters for path(), but was unsuccessful.
 # These are code bits that may be used for the implementation later
 # return HttpResponseRedirect(reverse('login', kwargs={'valid': True}))
+
+def logoutPage(request):
+    user = User.objects.get(username=request.user.username)
+    logout(request)
+    return render(request, 'loginPage/logoutPage.html', context={})
