@@ -64,7 +64,7 @@ class QuestionIndexViewTests(LiveServerTestCase):
     def tearDownClass(self):
         self.driver.close()
         super().tearDownClass()
-        
+
     # helper method to open to a specific page
     def open(self, extension):
         self.driver.get("%s%s" % (self.live_server_url, extension))
@@ -174,7 +174,7 @@ class QuestionDetailViewTests(LiveServerTestCase):
     def tearDownClass(self):
         self.driver.close()
         super().tearDownClass()
-        
+
     # helper method to open to a specific page
     def open(self, extension):
         self.driver.get("%s%s" % (self.live_server_url, extension))
@@ -209,7 +209,7 @@ class QuestionDetailViewTests(LiveServerTestCase):
 
         self.question.choice_set.create(choice_text='Yes')
         self.question.choice_set.create(choice_text='No')
-    
+
     def test_future_question(self):
         """
         Attempting to access a question published in the future will not work.
@@ -228,7 +228,7 @@ class QuestionDetailViewTests(LiveServerTestCase):
         """
         past_question = create_question(question_text='Past Question.', days=-5)
         self.dummy_login()
-        
+
         self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
         self.open(f'/polls/{past_question.pk}/')
 
@@ -242,7 +242,7 @@ class ResultsViewTests(LiveServerTestCase):
         self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
 
         self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
-        
+
         self.question.choice_set.create(choice_text='Yes')
         self.question.choice_set.create(choice_text='No')
         super().setUpClass()
@@ -251,7 +251,7 @@ class ResultsViewTests(LiveServerTestCase):
     def tearDownClass(self):
         self.driver.close()
         super().tearDownClass()
-        
+
     # helper method to open to a specific page
     def open(self, extension):
         self.driver.get("%s%s" % (self.live_server_url, extension))
@@ -651,3 +651,42 @@ class VoteTests(LiveServerTestCase):
 
         # Make sure we are redirected to the login page
         self.assertEqual(self.driver.current_url, self.get_url('/login/'))
+
+    def test_vote_once(self):
+        # Verify that the same user cannot vote twice on a poll
+
+        self.create_question()
+
+        # login and go to the first poll in the detail page
+        self.dummy_login()
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # Make sure that our vote is associated with the proper user
+        voterinfo = VoterInfo.objects.get(firstName="Test")
+        m = sha256()
+        m.update(voterinfo.IDNum.encode())
+        h = m.digest()
+        self.assertTrue(Vote.objects.filter(voter=f'{h}').exists())
+
+        self.open('/polls/')
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on second choice
+        choice1 = self.driver.find_element_by_id("choice2")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # No selenium errors should be thrown if the error message was displayed
+        error_element = self.driver.find_element_by_xpath("//*[contains(text(),'You have already voted')]")
+
