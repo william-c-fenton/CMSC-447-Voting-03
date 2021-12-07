@@ -10,8 +10,9 @@ from loginPage.models import VoterInfo
 from selenium import webdriver
 import os
 from selenium.webdriver.common.keys import Keys
-from datetime import datetime
+import datetime
 from time import sleep
+from hashlib import sha256
 
 class QuestionModelTests(TestCase):
 
@@ -52,15 +53,62 @@ def create_question(question_text, days):
     return Question.objects.create(question_text=question_text, pub_date=time)
 
 
-class QuestionIndexViewTests(TestCase):
+class QuestionIndexViewTests(LiveServerTestCase):
+
+    @classmethod
+    def setUpClass(self):
+        self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        self.driver.close()
+        super().tearDownClass()
+        
+    # helper method to open to a specific page
+    def open(self, extension):
+        self.driver.get("%s%s" % (self.live_server_url, extension))
+
+    # helper method to get current url with extensions
+    def get_url(self, extension):
+        return "%s%s" % (self.live_server_url, extension)
+
+    def dummy_login(self):
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com", )
+        info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
+
+        # Login normally
+        driver = self.driver
+        self.open('/login/')
+
+        first = driver.find_element_by_name("first name")
+        first.send_keys("Test")
+        last = driver.find_element_by_name("last name")
+        last.send_keys("Guy")
+        idnum = driver.find_element_by_name("IDNum")
+        idnum.send_keys("12345")
+        submit = driver.find_element_by_name("submit")
+        submit.click()
+
+    def create_question(self):
+        self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
+
+        self.question.choice_set.create(choice_text='Yes')
+        self.question.choice_set.create(choice_text='No')
+
     def test_no_questions(self):
         """
         If no questions exist, an appropriate message is displayed.
         """
-        response = self.client.get(reverse('polls:index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "No polls are available.")
-        self.assertQuerysetEqual(response.context['latest_question_list'], [])
+        self.dummy_login()
+        no_polls_msg = self.driver.find_element_by_xpath('.//p[contains(text(), "No polls are available.")]')
+
+        self.assertFalse(no_polls_msg == None)
+
 
     def test_past_question(self):
         """
@@ -80,9 +128,10 @@ class QuestionIndexViewTests(TestCase):
         the index page.
         """
         create_question(question_text="Future question.", days=30)
-        response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, "No polls are available.")
-        self.assertQuerysetEqual(response.context['latest_question_list'], [])
+        self.dummy_login()
+        no_polls_msg = self.driver.find_element_by_xpath('.//p[contains(text(), "No polls are available.")]')
+
+        self.assertFalse(no_polls_msg == None)
 
     def test_future_question_and_past_question(self):
         """
@@ -109,28 +158,8 @@ class QuestionIndexViewTests(TestCase):
             [question2, question1],
         )
 
-class QuestionDetailViewTests(TestCase):
-    def test_future_question(self):
-        """
-        The detail view of a question with a pub_date in the future
-        returns a 404 not found.
-        """
-        future_question = create_question(question_text='Future question.', days=5)
-        url = reverse('polls:detail', args=(future_question.id,))
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+class QuestionDetailViewTests(LiveServerTestCase):
 
-    def test_past_question(self):
-        """
-        The detail view of a question with a pub_date in the past
-        displays the question's text.
-        """
-        past_question = create_question(question_text='Past Question.', days=-5)
-        url = reverse('polls:detail', args=(past_question.id,))
-        response = self.client.get(url)
-        self.assertContains(response, past_question.question_text)
-
-class ResultsViewTests(TestCase):
     @classmethod
     def setUpClass(self):
         self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
@@ -139,27 +168,153 @@ class ResultsViewTests(TestCase):
 
         self.question.choice_set.create(choice_text='Yes')
         self.question.choice_set.create(choice_text='No')
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(self):
         self.driver.close()
+        super().tearDownClass()
+        
+    # helper method to open to a specific page
+    def open(self, extension):
+        self.driver.get("%s%s" % (self.live_server_url, extension))
+
+    # helper method to get current url with extensions
+    def get_url(self, extension):
+        return "%s%s" % (self.live_server_url, extension)
+
+    def dummy_login(self):
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com", )
+        info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
+
+        # Login normally
+        driver = self.driver
+        self.open('/login/')
+
+        first = driver.find_element_by_name("first name")
+        first.send_keys("Test")
+        last = driver.find_element_by_name("last name")
+        last.send_keys("Guy")
+        idnum = driver.find_element_by_name("IDNum")
+        idnum.send_keys("12345")
+        submit = driver.find_element_by_name("submit")
+        submit.click()
+
+    def create_question(self):
+        self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
+
+        self.question.choice_set.create(choice_text='Yes')
+        self.question.choice_set.create(choice_text='No')
+    
+    def test_future_question(self):
+        """
+        Attempting to access a question published in the future will not work.
+        """
+        future_question = create_question(question_text='Future question.', days=5)
+        self.dummy_login()
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+        response = self.client.get(self.get_url(f'/polls/{future_question.pk}/'))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_past_question(self):
+        """
+        The detail view of a question with a pub_date in the past
+        displays the question's text.
+        """
+        past_question = create_question(question_text='Past Question.', days=-5)
+        self.dummy_login()
+        
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+        self.open(f'/polls/{past_question.pk}/')
+
+        question_text = self.driver.find_element_by_id('question_text')
+
+        self.assertFalse(question_text == None)
+
+class ResultsViewTests(LiveServerTestCase):
+    @classmethod
+    def setUpClass(self):
+        self.driver = webdriver.Chrome(executable_path='C:\chromedriver.exe')
+
+        self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
+        
+        self.question.choice_set.create(choice_text='Yes')
+        self.question.choice_set.create(choice_text='No')
+        super().setUpClass()
+
+    @classmethod
+    def tearDownClass(self):
+        self.driver.close()
+        super().tearDownClass()
+        
+    # helper method to open to a specific page
+    def open(self, extension):
+        self.driver.get("%s%s" % (self.live_server_url, extension))
+
+    # helper method to get current url with extensions
+    def get_url(self, extension):
+        return "%s%s" % (self.live_server_url, extension)
+
+    def dummy_login(self):
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com", )
+        info.save()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
+
+        # Login normally
+        driver = self.driver
+        self.open('/login/')
+
+        first = driver.find_element_by_name("first name")
+        first.send_keys("Test")
+        last = driver.find_element_by_name("last name")
+        last.send_keys("Guy")
+        idnum = driver.find_element_by_name("IDNum")
+        idnum.send_keys("12345")
+        submit = driver.find_element_by_name("submit")
+        submit.click()
+
+    def create_question(self):
+        self.question = Question.objects.create(question_text='Does this work?', pub_date=timezone.now())
+
+        self.question.choice_set.create(choice_text='Yes')
+        self.question.choice_set.create(choice_text='No')
+
 
     def test_vote_takes_user_to_results_page(self):
         # Verify that the webpage takes you to the results page after clicking the vote button.
 
         # Navigate to the voting page for our poll.
         driver = self.driver
-        driver.get(f'http://127.0.0.1:8000/polls/{self.question.id}')
 
-        # Input a vote (just the first option is fine here).
-        driver.find_element_by_id('choice1').click()
+        # Verify that a vote in a poll is counted
 
-        # Select the "Vote" button, which should add a vote to the database and take us to the results page.
-        driver.find_element_by_xpath(".//input[@value='Vote']").click()
+        self.create_question()
+
+        # Login and go to the first poll in the detail page
+        self.dummy_login()
+
+        self.assertEqual(driver.current_url, self.get_url('/polls/'))
+
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
 
         # Verify that we are now currently on the results page.
-        self.assertEqual(driver.current_url,
-            f'http://127.0.0.1:8000/polls/{self.question.id}/results/')
+        self.assertEqual(driver.current_url, self.get_url(f'/polls/{self.question.pk}/results/'))
 
 
 class BallotCreationTests(LiveServerTestCase):
@@ -243,7 +398,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that a question added through the ballot creation page is in the database
 
         question_string = "What is up?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -265,7 +420,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that you are taken to the choice creation page after creating a question
 
         question_string = "What is up dog?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -288,7 +443,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that a choice added through the choice creation page is added to the correct question
 
         question_string = "What is up my homie?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -329,7 +484,7 @@ class BallotCreationTests(LiveServerTestCase):
         # Verify that you are taken to the question detail page after creating a choice and hitting "Exit" button
 
         question_string = "What is up my driller?"
-        now_string = datetime.now().strftime("%Y-%m-%d")
+        now_string = datetime.datetime.now().strftime("%Y-%m-%d")
 
         # Go to the ballot creation page
         self.dummy_login()
@@ -415,6 +570,27 @@ class VoteTests(LiveServerTestCase):
         self.question.choice_set.create(choice_text='Yes')
         self.question.choice_set.create(choice_text='No')
 
+    def test_vote_security(self):
+        # Verify that a vote in a poll is counted
+
+        self.create_question()
+
+        # Login and go to the first poll in the detail page
+        self.dummy_login()
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # Make sure that none of our voterinfo is stored in the database.
+        for field in ('Test', 'Guy', 'MD', 'test@example.com', 12345):
+            vote_set = Vote.objects.filter(voter=field)
+            self.assertEqual(len(vote_set), 0)
 
     def test_vote(self):
         # Verify that a vote in a poll is counted
@@ -456,7 +632,10 @@ class VoteTests(LiveServerTestCase):
 
         # Make sure that our vote is associated with the proper user
         voterinfo = VoterInfo.objects.get(firstName="Test")
-        self.assertTrue(Vote.objects.filter(voter=voterinfo).exists())
+        m = sha256()
+        m.update(voterinfo.IDNum.encode())
+        h = m.digest()
+        self.assertTrue(Vote.objects.filter(voter=f'{h}').exists())
 
     def test_not_logged_in(self):
         # Verify that we cannot vote on a poll if we are not logged in
