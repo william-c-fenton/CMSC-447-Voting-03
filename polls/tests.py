@@ -690,3 +690,82 @@ class VoteTests(LiveServerTestCase):
         # No selenium errors should be thrown if the error message was displayed
         error_element = self.driver.find_element_by_xpath("//*[contains(text(),'You have already voted')]")
 
+    def test_vote_different_user(self):
+        # Verify that a different user can vote on the same poll as the first user
+
+        self.create_question()
+
+        # login and go to the first poll in the detail page
+        self.dummy_login()
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # Make sure that our vote is associated with the proper user
+        voterinfo = VoterInfo.objects.get(firstName="Test")
+        m = sha256()
+        m.update(voterinfo.IDNum.encode())
+        h = m.digest()
+        self.assertTrue(Vote.objects.filter(voter=f'{h}').exists())
+
+        self.open('/polls/')
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on second choice
+        choice1 = self.driver.find_element_by_id("choice2")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # No selenium errors should be thrown if the error message was displayed
+        error_element = self.driver.find_element_by_xpath("//*[contains(text(),'You have already voted')]")
+
+        # Go back to the polls page and logout
+        self.open('/polls/')
+        logout_link = self.driver.find_element_by_id("logout")
+        logout_link.click()
+        self.assertEqual(self.driver.current_url, self.get_url('/logoutPage/'))
+
+        info = VoterInfo(firstName="Test2", lastName="Guy", state="MD", IDNum="123456", email="test2@example.com", )
+        info.save()
+
+        # Make another user
+        user = User.objects.create_user(username="Test2", email="test2@example.com", password="123456")
+        user.save()
+
+        # Login normally as the other user
+        driver = self.driver
+        self.open('/login/')
+
+        first = driver.find_element_by_name("first name")
+        first.send_keys("Test2")
+        last = driver.find_element_by_name("last name")
+        last.send_keys("Guy")
+        idnum = driver.find_element_by_name("IDNum")
+        idnum.send_keys("123456")
+        submit = driver.find_element_by_name("submit")
+        submit.click()
+
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
+        # Vote on first choice as second user
+        choice1 = self.driver.find_element_by_id("choice1")
+        choice1.click()
+        votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
+        votebtn.click()
+
+        # Make sure that our vote is associated with the proper user
+        voterinfo = VoterInfo.objects.get(firstName="Test2")
+        m = sha256()
+        m.update(voterinfo.IDNum.encode())
+        h = m.digest()
+        self.assertTrue(Vote.objects.filter(voter=f'{h}').exists())
