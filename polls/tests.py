@@ -288,8 +288,9 @@ class ResultsViewTests(LiveServerTestCase):
         self.question.choice_set.create(choice_text='No')
 
 
+    # Edited to take user to success page
     def test_vote_takes_user_to_results_page(self):
-        # Verify that the webpage takes you to the results page after clicking the vote button.
+        # Verify that the webpage takes you to the success page after clicking the vote button.
 
         # Navigate to the voting page for our poll.
         driver = self.driver
@@ -307,15 +308,29 @@ class ResultsViewTests(LiveServerTestCase):
         poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
         poll_link.click()
 
+        # Take user back to polls page
+        backbtn = self.driver.find_element_by_id("return")
+        backbtn.click()
+
+        self.assertEqual(self.driver.current_url, self.get_url('/polls/'))
+        poll_link = self.driver.find_element_by_xpath("//a[starts-with(@href, '/')]")
+        poll_link.click()
+
         # Vote on first choice
         choice1 = self.driver.find_element_by_id("choice1")
         choice1.click()
         votebtn = self.driver.find_element_by_xpath(".//input[@value='Vote']")
         votebtn.click()
 
-        # Verify that we are now currently on the results page.
-        self.assertEqual(driver.current_url, self.get_url(f'/polls/{self.question.pk}/results/'))
+        # Verify that we are now currently on the success page.
+        self.assertEqual(driver.current_url, self.get_url(f'/polls/voteSuccessful/'))
+        # self.assertEqual(driver.current_url, self.get_url(f'/polls/{self.question.pk}/results/'))
 
+        backbtn = self.driver.find_element_by_id("return")
+        backbtn.click()
+
+        # Are we back at the polls page?
+        self.assertEqual(driver.current_url, self.get_url(f'/polls/'))
 
 class BallotCreationTests(LiveServerTestCase):
 

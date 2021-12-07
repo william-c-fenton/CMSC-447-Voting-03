@@ -37,6 +37,10 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
+# !!! EDITED !!!
+def voteSuccessful(request):
+    return render(request, 'polls/voteSuccessful.html', context={})
+
 @sensitive_variables('voter_info', 'voter_idnum', 'hash_func', 'hashed_idnum')
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -63,7 +67,9 @@ def vote(request, question_id):
 
             selected_choice.vote_set.create(choice=selected_choice, voter=f'{hashed_idnum}')
 
-            return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+            # !!! EDITED !!!
+            #return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+            return HttpResponseRedirect(reverse('polls:voteSuccessful'))
 
 
 # Method for question creation page at polls/CreateQuestion
