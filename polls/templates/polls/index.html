@@ -29,8 +29,14 @@
                 <p>No polls are available.</p>
             {% endif %}
         </div>
+      
+        <div class="container">
+            <!-- Link to logout page in loginPage folder -->
+            <a href="{% url 'logoutPage' %}" id="logout">logout</a>
+        </div>
     </div>
 </body>
+
 {% else %}
     <p id="error">Please log in</p>
     <a href="{% url 'login' %}" id="login">login</a>
