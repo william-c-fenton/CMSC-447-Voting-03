@@ -3,7 +3,8 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-
+from django.views.decorators.debug import sensitive_variables
+from hashlib import sha256
 
 from .models import Choice, Question, Vote
 from loginPage.models import VoterInfo
@@ -18,7 +19,7 @@ class IndexView(generic.ListView):
         """Return the last five published questions."""
         return Question.objects.filter(
             pub_date__lte=timezone.now()
-        ).order_by('-pub_date')[:5]
+        ).order_by('-pub_date')[:10]
 
 
 class DetailView(generic.DetailView):
@@ -36,7 +37,7 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
-
+@sensitive_variables('voter_info', 'voter_idnum', 'hash_func', 'hashed_idnum')
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
@@ -54,7 +55,13 @@ def vote(request, question_id):
         # Associate a user's vote with their voterinfo
         if request.user.is_authenticated:
             voter_info = VoterInfo.objects.get(email=request.user.email)
-            selected_choice.vote_set.create(choice=selected_choice, voter=voter_info)
+            voter_idnum = voter_info.IDNum
+            
+            hash_func = sha256()
+            hash_func.update(voter_idnum.encode())
+            hashed_idnum = hash_func.digest()
+
+            selected_choice.vote_set.create(choice=selected_choice, voter=f'{hashed_idnum}')
 
             return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
 

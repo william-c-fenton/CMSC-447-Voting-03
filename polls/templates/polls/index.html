@@ -1,20 +1,43 @@
 {% load static %}
 {% if user.is_authenticated %}
-    <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+<head>
+    <meta charset="UTF-8">
+    <!-- From Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Voting App</title>
+</head>
 
-    {% if latest_question_list %}
-        <ul>
-        {% for question in latest_question_list %}
-            <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No polls are available.</p>
-    {% endif %}
+<body>
+    <header class="p-3 bg-black text-white">
+        <div class="container">
+            Ballots </br>
+        </div>
+    </header>
 
-    <!-- Link to logout page in loginPage folder -->
-    <a href="http://127.0.0.1:8000/logoutPage/" id="logout">logout</a>
+    <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container">
+            <link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}">
+
+            {% if latest_question_list %}
+                <ul>
+                {% for question in latest_question_list %}
+                    <h6><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></h6>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No polls are available.</p>
+            {% endif %}
+        </div>
+      
+        <div class="container">
+            <!-- Link to logout page in loginPage folder -->
+            <a href="http://127.0.0.1:8000/logoutPage/" id="logout">logout</a>
+        </div>
+    </div>
+</body>
+
 {% else %}
     <p id="error">Please log in</p>
-    <a href="http://127.0.0.1:8000/login/" id="login">login</a>
+    <a href="{% url 'login' %}" id="login">login</a>
 {% endif %}

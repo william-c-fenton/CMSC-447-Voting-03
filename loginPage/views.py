@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
+from django.views.decorators.debug import sensitive_variables
 
 from loginPage.models import VoterInfo
 from django.urls import reverse
@@ -51,6 +52,7 @@ def createUserError(request):
     return render(request, 'loginPage/createUserError.html', context=context)
 
 # Checks user input, then redirects to proper webpage.
+@sensitive_variables('voterinfo', 'user')
 def checkLogin(request):
     # Before attempting to log into the website, you must have a user in your database.
     # To add one, follow these instructions:
@@ -81,7 +83,9 @@ def checkLogin(request):
 
     return HttpResponseRedirect(reverse('loginError'))
 
+
 # Checks that the user doesn't already exist in the database, and then adds it. 
+@sensitive_variables('voterinfo', 'new_voter', 'user')
 def checkUser(request):
     # Checks the database for given information. If it does not already exist in the database, 
     # it will add it. If it does, it redirects to the failure page. 
