@@ -42,7 +42,9 @@
                     <td>{{pollItem.option2}}</td>
                     <td>{{pollItem.option3}}</td>
                     <td>{{pollItem.option4}}</td>
-                    <td><input type="checkbox" name ="pollItemDelete" id = "pollItem_delete" value={{pollItem.question}}></td>
+                    <td>
+                        <button class="btn btn-danger" name="button" type="submit" onclick="location.href='{% url 'deleteSelectedQuestions' pollItem.question %}'">Delete</button>
+                    </td>
                 </tr>
             {% endfor %}
 
@@ -52,10 +54,6 @@
 
 
     <form action='' method='POST' >
-         <form action="deleteSelectedQuestions" method="post" class="deletingQuestions">
-                {% csrf_token %}
-
-                <button class="btn btn-secondary">Delete Selected Questions</button>
         <H3 class="p-1 bg-white text-black">New Question Information </H3>
         {% csrf_token %}
         <br>
@@ -71,15 +69,19 @@
         <input type="text" size="101" name="addingQuestionOption4" placeholder="Enter an option to the question.">
         <br><br>
         <button type='submit' class="btn btn-primary" >Add a Question</button>
-    </form>
 
 
     </form>
 
-<!--
-    <form action='deleteQuestion' method='GET'>
-        <button type='submit'>Delete a Question</button>
-    </form> -->
+
+    </form>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
 </body>
 
 <head>
