@@ -2,38 +2,80 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Voting App Login</title>
+    <!-- From Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Voting App Login - Create User</title>
 </head>
 <body>
-    <div class="container">
-        Welcome to the Voting App Sign Up Page.</br>
-        Please enter information below.</br>
+    <header class="p-3 bg-black text-white">
+        <div class="container">
+            Welcome to the Voting App Sign Up Page.</br>
+        </div>
+    </header>
 
-        <!--Basic login information to be checked against info in database -->
-        <p style="color:red;" id="errorText">Error creating user.</p>
+    <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container">
+            Please enter information below.</br>
+            <!--Basic login information to be checked against info in database -->
+            <p style="color:red;" id="errorText">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                </svg>
+                Error creating user. Note that either the information</br>
+                was entered incorrectly, or the user already exists.
+            </p>
+        </div>
 
-        <form action="{% url 'checkUser' %}" method="post">
-            {% csrf_token %}
-            Enter First name:
-            <input type="text" name="first name"> </br>
-            Enter Last name:
-            <input type="text" name="last name"> </br>
-            Enter State:
-            <input type="text" name="state"> </br>
-            Enter ID:
-            <input type="text" name="IDNum"> </br>
-            Enter email:
-            <input type="text" name="email"> </br>
-            <input type="button" value="help" name="help">
-            <input type="submit" name="submit" value="Sign Up">
-        </form>
+        <div class="container">
+            <!--Basic login information to be checked against info in database -->
+            <form action="{% url 'checkUser' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Enter First name:</label></br>
+                    <input type="text" name="first name"> </br>
+                </div>
 
-        <form action="{% url 'login' %}" method="post">{% csrf_token %}
-            <input type="submit" name="login" value="Log In">
-        </form>
+                <div class="mb-3">
+                    <label class="form-label">Enter Last name:</label></br>
+                    <input type="text" name="last name"> </br>
+                </div>
 
-        <!--Link to help page-->
-        <a href="http://127.0.0.1:8000/loginHelp/" id="help">help</a>
+                <div class="mb-3">
+                    <label class="form-label">Enter State:</label></br>
+                    <input type="text" name="state"> </br>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Enter ID:</label></br>
+                    <input type="text" name="IDNum"> </br>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Enter email:</label></br>
+                    <input type="text" name="email"> </br>
+                </div>
+
+                <!--<input type="button" value="help" name="help">-->
+                <input type="submit" class="btn btn-primary" name="submit" value="Sign Up">
+            </form>
+
+            <form action="{% url 'login' %}" method="post">{% csrf_token %}
+                <input type="submit" name="login" value="Return to Log In">
+            </form>
+
+            <!--Link to help page-->
+            <a href="{% url 'loginHelp' %}" id="help">help
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-diamond" viewBox="0 0 16 16">
+                    <path d="M6.95.435c.58-.58 1.52-.58 2.1 0l6.515 6.516c.58.58.58 1.519 0 2.098L9.05 15.565c-.58.58-1.519.58-2.098 0L.435 9.05a1.482 1.482 0 0 1 0-2.098L6.95.435zm1.4.7a.495.495 0 0 0-.7 0L1.134 7.65a.495.495 0 0 0 0 .7l6.516 6.516a.495.495 0 0 0 .7 0l6.516-6.516a.495.495 0 0 0 0-.7L8.35 1.134z"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+                </svg>
+            </a>
+        </div>
     </div>
+
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

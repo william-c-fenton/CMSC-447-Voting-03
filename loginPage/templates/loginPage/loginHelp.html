@@ -2,19 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- From Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <!--This page provides information to help the user when logging in-->
     <title>Login Help</title>
 </head>
 <body>
-    <!--Please note that sending the voter's ID to their email has not been implemented yet-->
-    <div class="container">
-        <p>To login, please enter your first name and last name. Your state must be in the</br>
-        United States. Your ID is given to you via email, and will be the main method of</br>
-        identification in this voting app. Your email should be provided in the form and will</br>
-            be used for confirmation of your vote submission.</br>
-        </p>
+    <header class="p-3 bg-black text-white">
+        <div class="container">
+            Help</br>
+        </div>
+    </header>
 
-        <a href="http://127.0.0.1:8000/login/" id="back">back</a>
+    <!--Please note that sending the voter's ID to their email has not been implemented yet-->
+    <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container">
+            <p>To login, please enter your first name and last name. Your state must be in the</br>
+            United States. Your ID is given to you via email, and will be the main method of</br>
+            identification in this voting app. Your email should be provided in the form and will</br>
+                be used for confirmation of your vote submission.</br>
+            </p>
+
+            <a href="{% url 'login' %}" id="back">back</a>
+        </div>
     </div>
+
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -89,6 +89,12 @@ class URLTests(unittest.TestCase):
         info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com",)
         info.save()
 
+        # Delete pre-existing user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        if not (user is None):
+            u = User.objects.get(username='Test')
+            u.delete()
+
         # Make user
         user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
         user.save()
@@ -345,6 +351,69 @@ class URLTests(unittest.TestCase):
             email__iexact='test@example.com'
         ).delete()
 
+    def testLogout(self):
+        # Set up driver.
+        driver = self.driver
+        driver.get('http://127.0.0.1:8000/')
 
-        
+        # Add test voter information
+        info = VoterInfo(firstName="Test", lastName="Guy", state="MD", IDNum="12345", email="test@example.com")
+        info.save()
 
+        # Delete pre-existing user
+        user = authenticate(username='Test', email='test@example.com', password='12345')
+        if not (user is None):
+            u = User.objects.get(username='Test')
+            u.delete()
+
+        # Make user
+        user = User.objects.create_user(username="Test", email="test@example.com", password="12345")
+        user.save()
+
+        # Go to the polls page as logged in user
+        first_name_field = driver.find_element_by_name('first name')
+        first_name_field.send_keys('Test')
+
+        last_name_field = driver.find_element_by_name('last name')
+        last_name_field.send_keys('Guy')
+
+        idnum_field = driver.find_element_by_name('IDNum')
+        idnum_field.send_keys('12345')
+
+        driver.find_element_by_name('submit').click()
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
+
+        # Did we sign in properly?
+        # Is the error message absent from the page?
+        try:
+            driver.find_element_by_id("error")
+            self.assertTrue(False)
+        except:
+            self.assertTrue(True)
+
+        # Logout from the voting app
+        self.assertTrue(driver.find_element_by_id("logout"))
+        driver.find_element_by_id("logout").click()
+
+        # The user should be logged out
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/logoutPage/')
+        # Message shows if we logged out correctly
+        try:
+            driver.find_element_by_id("close")
+            self.assertTrue(True)
+        except:
+            self.assertTrue(False)
+
+        # The polls page should tell us we should log in
+        driver.get('http://127.0.0.1:8000/polls/')
+        self.assertEqual(driver.current_url, 'http://127.0.0.1:8000/polls/')
+
+        # Is the error message on the page?
+        self.assertTrue(driver.find_element_by_id("error"))
+
+        # Delete the test user.
+        VoterInfo.objects.filter(IDNum='12345').delete()
+
+        # Delete django test user
+        u = User.objects.get(username='Test')
+        u.delete()
